@@ -8,7 +8,7 @@ const manifest: ManifestType = {
   description: packageJson.description,
   options_page: "src/pages/options/index.html",
   background: { service_worker: "src/pages/background/index.js" },
-  permissions: ["identity"],
+  permissions: ["identity", "management", "storage"],
   action: {
     default_popup: "src/pages/popup/index.html",
     default_icon: "icon-34.png",

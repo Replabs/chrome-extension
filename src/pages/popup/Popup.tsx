@@ -1,8 +1,27 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import logo from "@assets/img/logo.svg";
 import "@pages/popup/Popup.css";
 
 const Popup = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    chrome.storage.local.get("user").then((user) => {
+      if (user) {
+        setIsLoggedIn(true);
+
+        const message = {
+          type: "LOG_IN",
+          refresh_token: JSON.parse(credentials).refresh_token,
+        };
+
+        chrome.runtime.sendMessage(message);
+      }
+    });
+
+    const credentials = localStorage.getItem("twitter_credentials");
+  }, []);
+
   const queryString = (params) =>
     Object.keys(params)
       .map((key) => {
@@ -10,8 +29,14 @@ const Popup = () => {
       })
       .join("&");
 
+  const logOut = async () => {
+    localStorage.removeItem("twitter_credentials");
+
+    setIsLoggedIn(false);
+  };
+
   // Start the Twitter Oauth flow.
-  const login = async () => {
+  const signUp = async () => {
     const params = {
       response_type: "code",
       redirect_uri: chrome.identity.getRedirectURL("oauth2"),
@@ -22,21 +47,14 @@ const Popup = () => {
       code_challenge_method: "plain",
     };
 
-    // Build the authorization url.
-    const messagePayload = {
-      type: "OAUTH",
+    const message = {
+      type: "SIGN_UP",
       oauth_url: `https://twitter.com/i/oauth2/authorize?${queryString(
         params
       )}`,
     };
 
-    // Send the authorization url to a background script function that returns the Oauth credentials.
-    chrome.runtime.sendMessage(messagePayload, (credentials) => {
-      // Save the credentials in localStorage.
-      localStorage.setItem("twitter_credentials", JSON.stringify(credentials));
-
-      alert("Worked");
-    });
+    chrome.runtime.sendMessage(message);
   };
 
   return (
@@ -54,7 +72,11 @@ const Popup = () => {
         >
           Learn React!
         </a>
-        <button onClick={() => login()}>Login</button>
+        {isLoggedIn ? (
+          <button onClick={() => logOut()}>Log Out</button>
+        ) : (
+          <button onClick={() => signUp()}>Log In</button>
+        )}
       </header>
     </div>
   );
