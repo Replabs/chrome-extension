@@ -70,7 +70,7 @@ async function signUp(oauth_url: string) {
         const data = await signupResponse.json();
 
         // Return the Firebase login token.
-        res(data);
+        res({ ...data, refresh_token: credentials.refresh_token });
       }
     );
   });
@@ -116,7 +116,7 @@ async function logIn(refresh_token: string) {
 
   const data = await apiResponse.json();
 
-  return data;
+  return { ...data, refresh_token: credentials.refresh_token };
 }
 
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {

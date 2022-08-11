@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from "react";
-import logo from "@assets/img/logo.svg";
 import "@pages/popup/Popup.css";
 
 const Popup = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    chrome.storage.local.get("user").then((user) => {
-      if (user) {
-        setIsLoggedIn(true);
-
-        const message = {
-          type: "LOG_IN",
-          refresh_token: JSON.parse(credentials).refresh_token,
-        };
-
-        chrome.runtime.sendMessage(message);
+    chrome.storage.local.get(null).then((data) => {
+      //
+      // Set the user.
+      //
+      if (!data || !data.user) {
+        return;
       }
-    });
 
-    const credentials = localStorage.getItem("twitter_credentials");
+      setUser(data.user);
+
+      //
+      // Log in the user in the backend.
+      //
+      // const message = {
+      //   type: "LOG_IN",
+      //   refresh_token: data.refresh_token,
+      // };
+
+      // chrome.runtime.sendMessage(message);
+    });
   }, []);
 
   const queryString = (params) =>
@@ -28,12 +33,6 @@ const Popup = () => {
         return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
       })
       .join("&");
-
-  const logOut = async () => {
-    localStorage.removeItem("twitter_credentials");
-
-    setIsLoggedIn(false);
-  };
 
   // Start the Twitter Oauth flow.
   const signUp = async () => {
@@ -57,27 +56,25 @@ const Popup = () => {
     chrome.runtime.sendMessage(message);
   };
 
+  const logOut = async () => {
+    chrome.storage.local.clear();
+    setUser(null);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/pages/popup/Popup.jsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React!
-        </a>
-        {isLoggedIn ? (
+      {user && (
+        <img src={user?.profile_image_url} className="App-logo" alt="logo" />
+      )}
+      {user ? (
+        <div>
+          <h3>{user.username}</h3>
+          <br></br>
           <button onClick={() => logOut()}>Log Out</button>
-        ) : (
-          <button onClick={() => signUp()}>Log In</button>
-        )}
-      </header>
+        </div>
+      ) : (
+        <button onClick={() => signUp()}>Log In</button>
+      )}
     </div>
   );
 };
