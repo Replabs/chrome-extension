@@ -32,21 +32,21 @@ async function signUp(oauth_url: string) {
         //
         // Get the twitter credentials.
         //
-        const body = new URLSearchParams({
+        const url = await getBaseUrl();
+        const body = {
           code: new URLSearchParams(responseUrl).get("code"),
           grant_type: "authorization_code",
           client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ",
           redirect_uri: chrome.identity.getRedirectURL("oauth2"),
           code_verifier: "challenge",
-        });
+        };
 
-        // Fetch the Oauth credentials using the URL-encoded body.
-        const response = await fetch("https://api.twitter.com/2/oauth2/token", {
+        const response = await fetch(url + "proxy/oauth", {
           method: "POST",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
           },
-          body: body,
+          body: JSON.stringify(body),
         });
 
         // Return the credentials.
@@ -55,9 +55,7 @@ async function signUp(oauth_url: string) {
         //
         // Use the Twitter credentials to create a user on the server and log it in.
         //
-        const base = await getBaseUrl();
-
-        const signupResponse = await fetch(base + "signup", {
+        const signupResponse = await fetch(url + "signup", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -83,28 +81,32 @@ async function logIn(refresh_token: string) {
   //
   // Fetch a new twitter token from the refresh token.
   //
-  const body = new URLSearchParams({
+
+  const body = {
     client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ",
     refresh_token: refresh_token,
     grant_type: "refresh_token",
-  });
+  };
 
-  const response = await fetch("https://api.twitter.com/2/oauth2/token", {
+  const url = await getBaseUrl();
+
+  const response = await fetch(url + "proxy/oauth", {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Type": "application/json",
     },
-    body: body,
+    body: JSON.stringify(body),
   });
 
   const credentials = await response.json();
 
+  console.log(credentials);
+
   //
   // Use the twitter token to log in to the server.
   //
-  const base = await getBaseUrl();
 
-  const apiResponse = await fetch(base + "login", {
+  const apiResponse = await fetch(url + "login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -119,6 +121,27 @@ async function logIn(refresh_token: string) {
   return { ...data, refresh_token: credentials.refresh_token };
 }
 
+/**
+ * Get PageRank results.
+ */
+async function getResults(accessToken) {
+  const base = await getBaseUrl();
+
+  const response = await fetch(base + "results", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      access_token: accessToken,
+    }),
+  });
+
+  const data = await response.json();
+
+  return data;
+}
+
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
   if (message.type == "SIGN_UP") {
     signUp(message.oauth_url).then((data) => {
@@ -128,6 +151,12 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     });
   } else if (message.type == "LOG_IN") {
     logIn(message.refresh_token).then((data) => {
+      chrome.storage.local.set(data).then(() => {
+        sendResponse(data);
+      });
+    });
+  } else if (message.type == "RESULTS") {
+    getResults(message.access_token).then((data) => {
       chrome.storage.local.set(data).then(() => {
         sendResponse(data);
       });

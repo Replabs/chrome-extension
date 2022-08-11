@@ -18,12 +18,12 @@ const Popup = () => {
       //
       // Log in the user in the backend.
       //
-      // const message = {
-      //   type: "LOG_IN",
-      //   refresh_token: data.refresh_token,
-      // };
+      const message = {
+        type: "LOG_IN",
+        refresh_token: data.refresh_token,
+      };
 
-      // chrome.runtime.sendMessage(message);
+      chrome.runtime.sendMessage(message);
     });
   }, []);
 

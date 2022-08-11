@@ -7,7 +7,9 @@ const manifest: ManifestType = {
   version: packageJson.version,
   description: packageJson.description,
   options_page: "src/pages/options/index.html",
-  background: { service_worker: "src/pages/background/index.js" },
+  background: {
+    service_worker: "src/pages/background/index.js",
+  },
   permissions: ["identity", "management", "storage"],
   action: {
     default_popup: "src/pages/popup/index.html",
@@ -18,7 +20,7 @@ const manifest: ManifestType = {
   },
   content_scripts: [
     {
-      matches: ["http://*/*", "https://*/*", "<all_urls>"],
+      matches: ["http://twitter.com/*"],
       js: ["src/pages/content/index.js"],
       css: ["assets/css/contentStyle.chunk.css"],
     },
