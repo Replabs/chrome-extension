@@ -5,57 +5,27 @@ const Popup = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    console.log("hello");
     chrome.storage.local.get(null).then((data) => {
-      //
-      // Set the user.
-      //
-      if (!data || !data.user) {
-        return;
+      if (data?.user) {
+        setUser(data?.user);
       }
-
-      setUser(data.user);
-
-      //
-      // Log in the user in the backend.
-      //
-      const message = {
-        type: "LOG_IN",
-        refresh_token: data.refresh_token,
-      };
-
-      chrome.runtime.sendMessage(message);
     });
   }, []);
 
-  const queryString = (params) =>
-    Object.keys(params)
-      .map((key) => {
-        return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
-      })
-      .join("&");
-
-  // Start the Twitter Oauth flow.
+  // Start the Oauth flow, creating a user in Firebase.
   const signUp = async () => {
-    const params = {
-      response_type: "code",
-      redirect_uri: chrome.identity.getRedirectURL("oauth2"),
-      client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ", // TODO
-      scope: "tweet.read users.read offline.access",
-      state: "state",
-      code_challenge: "challenge",
-      code_challenge_method: "plain",
-    };
-
-    const message = {
-      type: "SIGN_UP",
-      oauth_url: `https://twitter.com/i/oauth2/authorize?${queryString(
-        params
-      )}`,
-    };
-
-    chrome.runtime.sendMessage(message);
+    chrome.runtime.sendMessage(
+      {
+        type: "SIGN_UP",
+      },
+      (response) => {
+        setUser(response.user);
+      }
+    );
   };
 
+  // Clear the local user information.
   const logOut = async () => {
     chrome.storage.local.clear();
     setUser(null);

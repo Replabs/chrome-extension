@@ -18,7 +18,31 @@ async function getBaseUrl() {
 /**
  * Sign up a new user.
  */
-async function signUp(oauth_url: string) {
+async function signUp() {
+  //
+  // Create the Oauth URL.
+  //
+  const queryString = (params: unknown) =>
+    Object.keys(params)
+      .map((key) => {
+        return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
+      })
+      .join("&");
+
+  const params = {
+    response_type: "code",
+    redirect_uri: chrome.identity.getRedirectURL("oauth2"),
+    client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ", // TODO
+    scope: "tweet.read users.read offline.access",
+    state: "state",
+    code_challenge: "challenge",
+    code_challenge_method: "plain",
+  };
+
+  const oauthUrl = `https://twitter.com/i/oauth2/authorize?${queryString(
+    params
+  )}`;
+
   //
   // Start the Oauth flow
   //
@@ -26,7 +50,7 @@ async function signUp(oauth_url: string) {
     chrome.identity.launchWebAuthFlow(
       {
         interactive: true,
-        url: oauth_url,
+        url: oauthUrl,
       },
       async (responseUrl) => {
         //
@@ -49,117 +73,114 @@ async function signUp(oauth_url: string) {
           body: JSON.stringify(body),
         });
 
-        // Return the credentials.
         const credentials = await response.json();
+
+        credentials.access_token_expires_at =
+          Date.now() + credentials.expires_in;
 
         //
         // Use the Twitter credentials to create a user on the server and log it in.
         //
-        const signupResponse = await fetch(url + "signup", {
+        const signup = await fetch(url + "signup", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
             access_token: credentials?.access_token,
-          }),
+          },
         });
 
-        const data = await signupResponse.json();
+        const data = await signup.json();
 
-        // Return the Firebase login token.
-        res({ ...data, refresh_token: credentials.refresh_token });
+        await chrome.storage.local.set({
+          credentials: credentials,
+          user: data.user,
+        });
+
+        res({
+          credentials: credentials,
+          user: data.user,
+        });
       }
     );
   });
 }
 
 /**
- * Log in an existing user.
+ * Verify that the user has a valid access token. Refresh the token if not.
  */
-async function logIn(refresh_token: string) {
-  //
-  // Fetch a new twitter token from the refresh token.
-  //
+async function getCredentials() {
+  const credentials = await chrome.storage.local.get("credentials");
 
-  const body = {
-    client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ",
-    refresh_token: refresh_token,
-    grant_type: "refresh_token",
-  };
+  if (credentials?.access_token_expires_at < Date.now()) {
+    const body = {
+      client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ",
+      refresh_token: credentials.refresh_token,
+      grant_type: "refresh_token",
+    };
 
-  const url = await getBaseUrl();
+    const url = await getBaseUrl();
 
-  const response = await fetch(url + "proxy/oauth", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+    const response = await fetch(url + "proxy/oauth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
 
-  const credentials = await response.json();
+    const data = await response.json();
 
-  console.log(credentials);
+    await chrome.storage.local.set({ credentials: data });
 
-  //
-  // Use the twitter token to log in to the server.
-  //
-
-  const apiResponse = await fetch(url + "login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      access_token: credentials?.access_token,
-    }),
-  });
-
-  const data = await apiResponse.json();
-
-  return { ...data, refresh_token: credentials.refresh_token };
+    return data;
+  }
 }
 
 /**
  * Get PageRank results.
  */
-async function getResults(accessToken) {
+async function getResults() {
+  //
+  // If existing results exist that hasn't expired yet, return it.
+  //
+  const results = await chrome.storage.local.get("results");
+
+  if (results && results.expires_at > Date.now()) {
+    return results;
+  }
+
+  // Get an access token, using the refresh token if needed.
+  const credentials = await getCredentials();
+
   const base = await getBaseUrl();
 
   const response = await fetch(base + "results", {
-    method: "POST",
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
+      access_token: credentials.access_token,
     },
-    body: JSON.stringify({
-      access_token: accessToken,
-    }),
   });
 
   const data = await response.json();
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // A day from now in millis.
 
-  return data;
+  await chrome.storage.local.set({
+    results: data.results,
+    results_expires_at: expiresAt,
+  });
+
+  return data.results;
 }
 
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
   if (message.type == "SIGN_UP") {
-    signUp(message.oauth_url).then((data) => {
-      chrome.storage.local.set(data).then(() => {
-        sendResponse(data);
-      });
-    });
-  } else if (message.type == "LOG_IN") {
-    logIn(message.refresh_token).then((data) => {
-      chrome.storage.local.set(data).then(() => {
-        sendResponse(data);
-      });
+    signUp().then((data) => {
+      sendResponse(data);
     });
   } else if (message.type == "RESULTS") {
-    getResults(message.access_token).then((data) => {
-      chrome.storage.local.set(data).then(() => {
-        sendResponse(data);
-      });
+    getResults().then((results) => {
+      sendResponse(results);
     });
   }
 });
