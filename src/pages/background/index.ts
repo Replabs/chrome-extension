@@ -73,10 +73,15 @@ async function signUp() {
           body: JSON.stringify(body),
         });
 
+        if (!response.ok) {
+          console.error("Failed getting twitter credentials.");
+          return;
+        }
+
         const credentials = await response.json();
 
         credentials.access_token_expires_at =
-          Date.now() + credentials.expires_in;
+          Date.now() + credentials.expires_in * 1000; // Convert from seconds to milliseconds.
 
         //
         // Use the Twitter credentials to create a user on the server and log it in.
@@ -88,6 +93,11 @@ async function signUp() {
             access_token: credentials?.access_token,
           },
         });
+
+        if (!signup.ok) {
+          console.error("Failed to sign up.");
+          return;
+        }
 
         const data = await signup.json();
 
@@ -109,12 +119,12 @@ async function signUp() {
  * Verify that the user has a valid access token. Refresh the token if not.
  */
 async function getCredentials() {
-  const credentials = await chrome.storage.local.get("credentials");
+  const data = await chrome.storage.local.get("credentials");
 
-  if (credentials?.access_token_expires_at < Date.now()) {
+  if (data?.credentials?.access_token_expires_at < Date.now()) {
     const body = {
       client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ",
-      refresh_token: credentials.refresh_token,
+      refresh_token: data.credentials.refresh_token,
       grant_type: "refresh_token",
     };
 
@@ -128,12 +138,19 @@ async function getCredentials() {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
+    if (!response.ok) {
+      console.error("Faield to get credentials.");
+      return;
+    }
 
-    await chrome.storage.local.set({ credentials: data });
+    const newCredentials = await response.json();
 
-    return data;
+    await chrome.storage.local.set({ credentials: newCredentials });
+
+    return newCredentials;
   }
+
+  return data.credentials;
 }
 
 /**
@@ -143,10 +160,11 @@ async function getResults() {
   //
   // If existing results exist that hasn't expired yet, return it.
   //
-  const results = await chrome.storage.local.get("results");
+  const data = await chrome.storage.local.get("results");
 
-  if (results && results.expires_at > Date.now()) {
-    return results;
+  if (data?.results && data?.results?.expires_at > Date.now()) {
+    console.info("returning stored results");
+    return data.results;
   }
 
   // Get an access token, using the refresh token if needed.
@@ -162,12 +180,15 @@ async function getResults() {
     },
   });
 
-  const data = await response.json();
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24); // A day from now in millis.
+  if (!response.ok) {
+    console.error("Failed to get results.");
+    return;
+  }
+
+  const body = await response.json();
 
   await chrome.storage.local.set({
-    results: data.results,
-    results_expires_at: expiresAt,
+    results: body,
   });
 
   return data.results;

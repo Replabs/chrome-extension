@@ -20,7 +20,7 @@ const manifest: ManifestType = {
   },
   content_scripts: [
     {
-      matches: ["http://twitter.com/*"],
+      matches: ["http://twitter.com/*", "https://twitter.com/*"],
       js: ["src/pages/content/index.js"],
       css: ["assets/css/contentStyle.chunk.css"],
     },

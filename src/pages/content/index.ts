@@ -1,4 +1,4 @@
-console.log("content loaded");
+console.info("content loaded");
 
 /**
  * @description
@@ -6,16 +6,15 @@ console.log("content loaded");
  */
 import("./components/Demo");
 
-function init() {
-  // Get the results from storage.
-  chrome.storage.local.get().then((data) => {
-    if (data["results"]) {
-      console.log(data["results"]);
-    }
-  });
+async function run() {
+  // Get the results.
+  const results = await chrome.runtime.sendMessage({ type: "RESULTS" });
+
+  console.info(results);
 }
 
 function addLocationObserver(callback) {
+  console.log("Inside add location ob callback");
   // Options for the observer (which mutations to observe)
   const config = { attributes: false, childList: true, subtree: false };
 
@@ -28,7 +27,7 @@ function addLocationObserver(callback) {
 
 function observerCallback() {
   if (window.location.href.startsWith("https://twitter.com")) {
-    init();
+    run();
   }
 }
 

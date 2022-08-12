@@ -5,8 +5,7 @@ const Popup = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    console.log("hello");
-    chrome.storage.local.get(null).then((data) => {
+    chrome.storage.local.get("user").then((data) => {
       if (data?.user) {
         setUser(data?.user);
       }
