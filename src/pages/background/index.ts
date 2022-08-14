@@ -163,7 +163,6 @@ async function getResults() {
   const data = await chrome.storage.local.get("results");
 
   if (data?.results && data?.results?.expires_at > Date.now()) {
-    console.info("returning stored results");
     return data.results;
   }
 
@@ -171,6 +170,8 @@ async function getResults() {
   const credentials = await getCredentials();
 
   const base = await getBaseUrl();
+
+  console.log("getting results...");
 
   const response = await fetch(base + "results", {
     method: "GET",
@@ -187,11 +188,13 @@ async function getResults() {
 
   const body = await response.json();
 
+  console.log(body);
+
   await chrome.storage.local.set({
     results: body,
   });
 
-  return data.results;
+  return body;
 }
 
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {

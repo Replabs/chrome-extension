@@ -30,6 +30,7 @@ const manifest: ManifestType = {
       resources: [
         "assets/js/*.js",
         "assets/css/*.css",
+        "fonts/*.ttf",
         "icon-128.png",
         "icon-34.png",
       ],

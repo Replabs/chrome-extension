@@ -1,5 +1,152 @@
 @import "@assets/style/theme.scss";
 
-.content-view {
-  font-size: 30px;
+@font-face {
+  font-family: "inter";
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/Inter-Regular.ttf');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "inter-semibold";
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/Inter-SemiBold.ttf');
+  font-weight: semi-bold;
+}
+
+@font-face {
+  font-family: "inter-bold";
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/Inter-Bold.ttf'); 
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "inter-bolder";
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/Inter-ExtraBold.ttf'); 
+  font-weight: bolder;
+}
+
+#twitter-chrome-extension-cards {
+  font-family: inter;
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  white-space: nowrap;
+  padding-right: 16px;
+}
+
+#twitter-chrome-extension-cards::-webkit-scrollbar { 
+  display: none;
+}
+
+#twitter-chrome-extension-cards * {
+  white-space: normal;
+}
+
+#twitter-chrome-extension-cards h4 {
+  font-size: 1.2rem;
+  font-family: inter-bold;
+  margin: 0;
+  margin-bottom: 4px;
+  padding: 0;
+}
+
+#twitter-chrome-extension-cards p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #566370;
+  width: 210px;
+}
+
+#twitter-chrome-extension-cards strong {
+  font-family: inter-bold;
+  color: black;
+}
+
+.twitter-chrome-extension-card {
+  display: inline-block;
+  border-radius: 16px;
+  padding: 12px;
+  margin-left: 16px;
+  border: 1.5px solid #D1D9DD;
+  width: 268px;
+}
+
+.twitter-chrome-extension-row {
+  display: flex;
+  min-height: 32px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.twitter-chrome-extension-profile-container {
+  position: relative;
+  width: 38px;
+  margin-right: 2px;
+  height: 20px;
+}
+
+.twitter-chrome-extension-profile-img {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  border: 1px solid white;
+}
+
+.twitter-chrome-extension-profile-img:nth-child(1) {
+  position: absolute;
+  left: 0px;
+  z-index: 3;
+}
+
+.twitter-chrome-extension-profile-img:nth-child(2) {
+  position: absolute;
+  left: 6px;
+  z-index: 2;
+}
+
+.twitter-chrome-extension-profile-img:nth-child(3) {
+  position: absolute;
+  left: 12px;
+  z-index: 1;
+}
+
+/* BADGE */
+.twitter-chrome-extension-badges {
+  font-family: inter;
+  display: flex;
+  flex-direction: row;
+  overflow: auto;
+  white-space: nowrap;
+  padding-right: 16px;
+}
+
+.twitter-chrome-extension-badge {
+  border-radius: 18px;
+  height: 22px;
+  font-size: 0.8rem;
+  font-family: inter-semibold;
+  background: #D1D9DD;
+  color: #566370;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  margin-top: 2px;
+  margin-bottom: 8px;
+  padding-left: 2px;
+  padding-right: 6px;
+}
+
+.twitter-chrome-extension-badge .twitter-chrome-extension-profile-img {
+  border: 1px solid #D1D9DD;;
+}
+
+.twitter-chrome-extension-badge p {
+  margin: 0px;
+}
+
+.twitter-chrome-extension-badge .twitter-chrome-extension-profile-container {
+  width: 36px;
+  margin-right: 0px;
 }
