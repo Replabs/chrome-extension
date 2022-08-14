@@ -263,6 +263,15 @@ function addLocationObserver(callback) {
 }
 
 async function observerCallback() {
+  //
+  // Verify that the user is logged in.
+  //
+  const data = await chrome.storage.local.get("credentials");
+
+  if (!data.credentials) {
+    return;
+  }
+
   console.log("Observer callback");
 
   const twitter = "https://twitter.com/";
