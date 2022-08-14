@@ -45,7 +45,7 @@ async function addReputationCardsToProfile() {
   for (const [listName, list] of Object.entries(results.lists)) {
     for (const [keyword, users] of Object.entries(list)) {
       for (const user of users) {
-        if (user == username) {
+        if (user.username == username) {
           cards.push({
             list: listName,
             keyword: capitalizeFirstLetter(keyword),
@@ -106,7 +106,7 @@ async function addReputationBadgesToTimeline() {
           user: user,
           list: listName,
           keyword: capitalizeFirstLetter(keyword),
-          otherUsers: users.filter((u: string) => u != user),
+          otherUsers: users.filter((u) => u != user),
         });
       }
     }
@@ -132,7 +132,7 @@ async function addReputationBadgesToTimeline() {
     const username = a?.getAttribute("href")?.replace("/", "");
 
     // The badges that should be displayed for the user.
-    const badgesToDisplay = badges.filter((b) => b.user == username);
+    const badgesToDisplay = badges.filter((b) => b.user.username == username);
 
     if (badgesToDisplay.length == 0) {
       continue;
@@ -159,9 +159,9 @@ async function addReputationBadgesToTimeline() {
 function createBadgesView(
   badges: {
     keyword: string;
-    user: string;
+    user: { name: string };
     list: string;
-    otherUsers: string[];
+    otherUsers: [{ profile_image_url: string }];
   }[]
 ) {
   const view = document.createElement("div");
@@ -173,7 +173,7 @@ function createBadgesView(
     badgeContainer.className = "twitter-chrome-extension-badge";
 
     // Add the profiles.
-    badgeContainer.appendChild(createProfilesView());
+    badgeContainer.appendChild(createProfilesView(badge.otherUsers));
 
     // Add the badge text.
     const name = document.createElement("p");
@@ -187,14 +187,14 @@ function createBadgesView(
   return view;
 }
 
-function createProfilesView() {
+function createProfilesView(users: [{ profile_image_url: string }]) {
   const profiles = document.createElement("div");
   profiles.className = "twitter-chrome-extension-profile-container";
 
   for (let i = 0; i < 3; i++) {
     const img = document.createElement("img");
-    img.src =
-      "https://pbs.twimg.com/profile_images/1552594337464307713/ZloMEOAw_400x400.jpg";
+
+    img.src = users[i].profile_image_url;
     img.className = "twitter-chrome-extension-profile-img";
 
     profiles.appendChild(img);
@@ -209,9 +209,9 @@ function createProfilesView() {
 function createCardsView(
   cards: {
     keyword: string;
-    user: string;
+    user: { name: string };
     list: string;
-    otherUsers: string[];
+    otherUsers: [{ profile_image_url: string }];
   }[]
 ) {
   // Create a container for the cards.
@@ -235,11 +235,11 @@ function createCardsView(
     cardContainer.appendChild(h4);
     cardContainer.appendChild(row);
 
-    row.appendChild(createProfilesView());
+    row.appendChild(createProfilesView(card.otherUsers));
 
     // The text of the card.
     const text = document.createElement("p");
-    text.innerHTML = `<strong>${card.user}</strong> seems knowledgable about <strong>${card.keyword}</strong> to people in <strong>${card.list}</strong>.`;
+    text.innerHTML = `<strong>${card.user.name}</strong> seems knowledgable about <strong>${card.keyword}</strong> to people in <strong>${card.list}</strong>.`;
     row.appendChild(text);
   }
 
