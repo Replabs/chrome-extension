@@ -171,8 +171,6 @@ async function getResults() {
 
   const base = await getBaseUrl();
 
-  console.log("getting results...");
-
   const response = await fetch(base + "results", {
     method: "GET",
     headers: {
@@ -187,8 +185,6 @@ async function getResults() {
   }
 
   const body = await response.json();
-
-  console.log(body);
 
   await chrome.storage.local.set({
     results: body,

@@ -1,11 +1,9 @@
 console.info("content loaded");
 
 /**
- * @description
- * Chrome extensions don't support modules in content scripts.
+ * Return the string with the first letter capitalized.
  */
-
-function capitalizeFirstLetter(string) {
+function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
@@ -46,7 +44,6 @@ async function addReputationCardsToProfile() {
 
   for (const [listName, list] of Object.entries(results.lists)) {
     for (const [keyword, users] of Object.entries(list)) {
-      console.log(users);
       for (const user of users) {
         if (user == username) {
           cards.push({
@@ -61,6 +58,13 @@ async function addReputationCardsToProfile() {
   }
 
   if (cards.length == 0) {
+    const view = document.getElementById("twitter-chrome-extension-cards");
+
+    // Remove the view if it already exist.
+    if (view) {
+      view.parentNode.removeChild(view);
+    }
+
     return;
   }
 
@@ -83,19 +87,12 @@ async function addReputationCardsToProfile() {
  * Add reputation badges to tweets in the timeline.
  */
 async function addReputationBadgesToTimeline() {
-  console.log("inside reps badge to timeline");
   //
   // Fetch the results from storage or API.
   //
-
-  console.log("foo");
   await chrome.runtime.sendMessage({ type: "RESULTS" });
-  console.log("bar");
   const data = await chrome.storage.local.get("results");
-  console.log("do");
   const results = data.results;
-
-  console.log(results);
 
   //
   // Get all relevant badges to display from the results.
@@ -131,13 +128,10 @@ async function addReputationBadgesToTimeline() {
     // Get the <a> tag from the tweet header.
     const a = tweetHeader?.children[1].children[0].children[0].children[0];
 
-    console.log(a);
-
     // The href property of the a tag for the user link is /:username.
     const username = a?.getAttribute("href")?.replace("/", "");
 
-    console.log(username);
-
+    // The badges that should be displayed for the user.
     const badgesToDisplay = badges.filter((b) => b.user == username);
 
     if (badgesToDisplay.length == 0) {
@@ -255,7 +249,11 @@ function createCardsView(
 
 function addLocationObserver(callback) {
   // Options for the observer (which mutations to observe)
-  const config = { attributes: false, childList: true, subtree: false };
+  const config = {
+    attributes: false,
+    childList: true,
+    subtree: true,
+  };
 
   // Create an observer instance linked to the callback function
   const observer = new MutationObserver(callback);
@@ -264,26 +262,24 @@ function addLocationObserver(callback) {
   observer.observe(document.body, config);
 }
 
-const isCallingCards = false;
-const isCallingBadges = false;
-
 async function observerCallback() {
-  if (window.location.href.startsWith("https://twitter.com/")) {
-    // This function internally checks that the route is indeed a user profile.
-    // if (!isCallingCards) {
-    //   isCallingCards = true;
-    addReputationCardsToProfile();
-    // isCallingCards = false;
-    // }
+  console.log("Observer callback");
 
-    // This function internally checks that the route is indeed a timeline.
-    // if (!isCallingBadges) {
-    //   isCallingBadges = true;
+  const twitter = "https://twitter.com/";
+  const href = window.location.href;
+
+  if (href.startsWith(twitter + "home") || href.startsWith(twitter + "i")) {
+    // Home screen or list.
     addReputationBadgesToTimeline();
-    // isCallingBadges = false;
-    // }
+  } else if (
+    href.startsWith(twitter) &&
+    !href.replace(twitter, "").includes("/")
+  ) {
+    // User profile.
+    addReputationCardsToProfile();
   }
 }
 
+// Register the observers.
 addLocationObserver(observerCallback);
 observerCallback();
