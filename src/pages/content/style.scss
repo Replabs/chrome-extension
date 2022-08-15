@@ -110,7 +110,7 @@
   z-index: 1;
 }
 
-/* BADGE */
+/****** BADGE ******/
 .twitter-chrome-extension-badges {
   font-family: inter;
   display: flex;
@@ -154,4 +154,167 @@
 .twitter-chrome-extension-badge .twitter-chrome-extension-profile-container {
   width: 36px;
   margin-right: 0px;
+}
+
+
+/****** MODAL ******/
+
+.modal {
+  display: block;
+  padding: 0 1em;
+  text-align: center;
+  width: 100%;
+}
+@media (min-width: 43.75em) {
+.modal {
+  padding: 1em 2em;
+  text-align: right;
+}
+}
+.modal > label {
+  background: #000;
+  border-radius: .2em;
+  color: #FFDE16;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: bold;
+  margin: 0.5em 1em;
+  padding: 0.75em 1.5em;
+  -webkit-transition: all 0.55s;
+  transition: all 0.55s;
+}
+.modal > label:hover {
+  -webkit-transform: scale(0.97);
+  -ms-transform: scale(0.97);
+  transform: scale(0.97);
+}
+.modal input {
+  position: absolute;
+  right: 100px;
+  top: 30px;
+  z-index: -10;
+}
+.modal__overlay {
+  background: black;
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  text-align: center;
+  top: 0;
+  z-index: -800;
+}
+.modal__box {
+  padding: 1em .75em;
+  position: relative;
+  margin: 1em auto;
+  max-width: 500px;
+  width: 90%;
+}
+@media (min-height: 37.5em) {
+.modal__box {
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  -webkit-transform: translate(-50%, -80%);
+  -ms-transform: translate(-50%, -80%);
+  transform: translate(-50%, -80%);
+}
+}
+@media (min-width: 50em) {
+.modal__box { padding: 1.75em; }
+}
+.modal__box label {
+  background: #FFDE16;
+  border-radius: 50%;
+  color: black;
+  cursor: pointer;
+  display: inline-block;
+  height: 1.5em;
+  line-height: 1.5em;
+  position: absolute;
+  right: .5em;
+  top: .5em;
+  width: 1.5em;
+}
+.modal__box h2 {
+  color: #FFDE16;
+  margin-bottom: 1em;
+  text-transform: uppercase;
+}
+.modal__box p {
+  color: #FFDE16;
+  text-align: left;
+}
+.modal__overlay {
+  opacity: 0;
+  overflow: hidden;
+  -webkit-transform: scale(0.5);
+  -ms-transform: scale(0.5);
+  transform: scale(0.5);
+  -webkit-transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+}
+input:checked ~ .modal__overlay {
+  opacity: 1;
+  -webkit-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+  -webkit-transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+  z-index: 800;
+}
+input:focus + label {
+  -webkit-transform: scale(0.97);
+  -ms-transform: scale(0.97);
+  transform: scale(0.97);
+}
+
+#twitter-chrome-extension-popup-container {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  transition: opacity 500ms;
+  visibility: hidden;
+  opacity: 0;
+}
+#twitter-chrome-extension-popup-container:target {
+  visibility: visible;
+  opacity: 1;
+}
+
+#twitter-chrome-extension-popup {
+  margin: 70px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 5px;
+  width: 30%;
+  position: relative;
+  transition: all 5s ease-in-out;
+}
+
+#twitter-chrome-extension-popup h2 {
+  margin-top: 0;
+  color: #333;
+  font-family: Tahoma, Arial, sans-serif;
+}
+#twitter-chrome-extension-popup #twitter-chrome-extension-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  transition: all 200ms;
+  font-size: 30px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+}
+#twitter-chrome-extension-popup #twitter-chrome-extension-close:hover {
+  color: #06D85F;
+}
+#twitter-chrome-extension-popup #twitter-chrome-extension-content {
+  max-height: 30%;
+  overflow: auto;
 }

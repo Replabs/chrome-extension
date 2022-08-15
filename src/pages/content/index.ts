@@ -174,6 +174,7 @@ function createBadgesView(
 
     // Add the profiles.
     badgeContainer.appendChild(createProfilesView(badge.otherUsers));
+    badgeContainer.addEventListener("click", showPopup, false);
 
     // Add the badge text.
     const name = document.createElement("p");
@@ -223,6 +224,8 @@ function createCardsView(
     // The container of the card content.
     const cardContainer = document.createElement("div");
     cardContainer.className = "twitter-chrome-extension-card";
+    cardContainer.addEventListener("click", showPopup, false);
+    console.log("added event listener to card");
     view.appendChild(cardContainer);
 
     // The title of the card.
@@ -245,6 +248,70 @@ function createCardsView(
 
   // Return the view.
   return view;
+}
+
+function showPopup() {
+  console.log("INside show popup!!");
+  const popup = document.getElementById(
+    "twitter-chrome-extension-popup-container"
+  );
+
+  console.log(popup);
+
+  popup?.style.setProperty("opacity", "1");
+  popup?.style.setProperty("visibility", "visible");
+}
+
+function hidePopup() {
+  console.log("INside hide popup!!");
+  const popup = document.getElementById(
+    "twitter-chrome-extension-popup-container"
+  );
+
+  console.log(popup);
+
+  popup?.style.setProperty("opacity", "0");
+  popup?.style.setProperty("visibility", "hidden");
+}
+
+function injectModal() {
+  //
+  // Only inject the modal if it doesn't already exist.
+  //
+  const modal = document.getElementById("twitter-chrome-extension-popup");
+
+  if (modal) {
+    return;
+  }
+
+  // The HTML for the modal.
+  const html = `
+<div id="twitter-chrome-extension-popup-container">
+	<div id="twitter-chrome-extension-popup">
+		<h2>What's this?</h2>
+		<a id="twitter-chrome-extension-close">&times;</a>
+		<div id="#twitter-chrome-extension-content">
+			The repuation scores of the following badges are created from 
+		</div>
+	</div>
+</div>`.trim();
+
+  // Create the HTML template.
+  const template = document.createElement("template");
+
+  // Find the body node.
+  const body = [...document.getElementsByTagName("body")][0];
+
+  // Add the modal HTML to the template.
+  template.innerHTML = html;
+
+  // Add the html modal to the body.
+  body.appendChild(template.content.firstChild);
+
+  // Add the option to close the modal.
+  document
+    .getElementById("twitter-chrome-extension-close")
+    ?.addEventListener("click", hidePopup, false);
 }
 
 function addLocationObserver(callback) {
@@ -272,10 +339,17 @@ async function observerCallback() {
     return;
   }
 
-  console.log("Observer callback");
+  // console.log("Observer callback");
 
   const twitter = "https://twitter.com/";
   const href = window.location.href;
+
+  if (!href.startsWith(twitter)) {
+    return;
+  }
+
+  // Inject the popup modal, if it is not already shown.
+  injectModal();
 
   if (href.startsWith(twitter + "home") || href.startsWith(twitter + "i")) {
     // Home screen or list.
