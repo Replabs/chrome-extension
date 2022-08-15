@@ -68,6 +68,11 @@
   margin-left: 16px;
   border: 1.5px solid #D1D9DD;
   width: 268px;
+  cursor: pointer;
+}
+
+.twitter-chrome-extension-card:hover {
+  background-color: rgb(236, 236, 236);
 }
 
 .twitter-chrome-extension-row {
@@ -180,10 +185,10 @@
   padding: 20px;
   background: #fff;
   border-radius: 12px;
+  transition: opacity 500ms;
   width: 30%;
   min-width: 220px;
   position: relative;
-  transition: all 5s ease-in-out;
 }
 
 #twitter-chrome-extension-popup a {
@@ -193,7 +198,7 @@
 
 #twitter-chrome-extension-popup p {
   color: #566370;
-  transition: none;
+  // transition: none;
 }
 
 #twitter-chrome-extension-popup a:hover {
@@ -211,7 +216,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  transition: all 200ms;
+  transition: opacity 200ms;
   font-size: 24px;
   line-height: 24px;
   height: 24px;
