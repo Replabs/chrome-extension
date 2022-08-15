@@ -289,9 +289,10 @@ function injectModal() {
 <div id="twitter-chrome-extension-popup-container">
 	<div id="twitter-chrome-extension-popup">
 		<h2>What's this?</h2>
-		<a id="twitter-chrome-extension-close">&times;</a>
+		<button id="twitter-chrome-extension-close">&times;</button>
 		<div id="#twitter-chrome-extension-content">
-			The repuation scores of the following badges are created from 
+      <p>TwitRep uses the PageRank algorithm and natural language processing to help you find out who knows what.</p>
+      <p>TwitRep is currently an experimental product. If you have any questions or concerns, send an email to <a href="mailto:hello@replabs.xyz">hello@replabs.xyz.</a></p>
 		</div>
 	</div>
 </div>`.trim();
