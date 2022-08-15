@@ -30,8 +30,8 @@
   flex-direction: row;
   overflow: auto;
   white-space: nowrap;
-  padding-right: 16px;
   margin-bottom: 8px;
+  width: 100%;
 }
 
 #twitter-chrome-extension-cards::-webkit-scrollbar { 
@@ -52,6 +52,7 @@
 
 #twitter-chrome-extension-cards p {
   margin: 0;
+  margin-left: 8px;
   font-size: 0.7rem;
   color: #566370;
 }
@@ -67,8 +68,11 @@
   padding: 12px;
   margin-left: 16px;
   border: 1.5px solid #D1D9DD;
-  width: 268px;
   cursor: pointer;
+}
+
+.twitter-chrome-extension-card:last-child {
+  margin-right: 16px;
 }
 
 .twitter-chrome-extension-card:hover {
@@ -78,15 +82,15 @@
 .twitter-chrome-extension-row {
   display: flex;
   min-height: 32px;
+  width: 280px;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
 .twitter-chrome-extension-profile-container {
   position: relative;
-  width: 74px;
-  margin-right: 2px;
+  width: 58px;
   height: 20px;
 }
 
@@ -141,6 +145,10 @@
   margin-bottom: 8px;
   padding-left: 2px;
   padding-right: 6px;
+}
+
+.twitter-chrome-extension-badge:hover {
+  background: #bbc3c7;
 }
 
 .twitter-chrome-extension-badges::-webkit-scrollbar { 

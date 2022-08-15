@@ -250,7 +250,9 @@ function createCardsView(
   return view;
 }
 
-function showPopup() {
+function showPopup(e: Event) {
+  e.stopPropagation();
+
   console.log("INside show popup!!");
   const popup = document.getElementById(
     "twitter-chrome-extension-popup-container"
@@ -262,7 +264,9 @@ function showPopup() {
   popup?.style.setProperty("visibility", "visible");
 }
 
-function hidePopup() {
+function hidePopup(e: Event) {
+  e.stopPropagation();
+
   console.log("INside hide popup!!");
   const popup = document.getElementById(
     "twitter-chrome-extension-popup-container"
