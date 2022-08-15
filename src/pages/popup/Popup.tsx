@@ -18,8 +18,8 @@ const Popup = () => {
       {
         type: "SIGN_UP",
       },
-      (response) => {
-        setUser(response.user);
+      () => {
+        // This will be called immediately, sendMessage is not asynchronous.
       }
     );
   };
@@ -33,16 +33,21 @@ const Popup = () => {
   return (
     <div className="App">
       {user && (
-        <img src={user?.profile_image_url} className="App-logo" alt="logo" />
+        <img
+          src={user?.profile_image_url}
+          className="profile-picture"
+          alt="logo"
+        />
       )}
       {user ? (
         <div>
-          <h3>{user.username}</h3>
+          <h3>{user.name}</h3>
+          <p>@{user.username}</p>
           <br></br>
           <button onClick={() => logOut()}>Log Out</button>
         </div>
       ) : (
-        <button onClick={() => signUp()}>Log In</button>
+        <button onClick={() => signUp()}>Log in</button>
       )}
     </div>
   );

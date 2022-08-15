@@ -24,7 +24,7 @@
   font-weight: bolder;
 }
 
-#twitter-chrome-extension-cards {
+#twitrep-cards {
   font-family: inter;
   display: flex;
   flex-direction: row;
@@ -34,15 +34,15 @@
   width: 100%;
 }
 
-#twitter-chrome-extension-cards::-webkit-scrollbar { 
+#twitrep-cards::-webkit-scrollbar { 
   display: none;
 }
 
-#twitter-chrome-extension-cards * {
+#twitrep-cards * {
   white-space: normal;
 }
 
-#twitter-chrome-extension-cards h4 {
+#twitrep-cards h4 {
   font-size: 1.2rem;
   font-family: inter-bold;
   margin: 0;
@@ -50,19 +50,19 @@
   padding: 0;
 }
 
-#twitter-chrome-extension-cards p {
+#twitrep-cards p {
   margin: 0;
   margin-left: 8px;
   font-size: 0.7rem;
   color: #566370;
 }
 
-#twitter-chrome-extension-cards strong {
+#twitrep-cards strong {
   font-family: inter-bold;
   color: black;
 }
 
-.twitter-chrome-extension-card {
+.twitrep-card {
   display: inline-block;
   border-radius: 16px;
   padding: 12px;
@@ -71,15 +71,15 @@
   cursor: pointer;
 }
 
-.twitter-chrome-extension-card:last-child {
+.twitrep-card:last-child {
   margin-right: 16px;
 }
 
-.twitter-chrome-extension-card:hover {
+.twitrep-card:hover {
   background-color: rgb(236, 236, 236);
 }
 
-.twitter-chrome-extension-row {
+.twitrep-row {
   display: flex;
   min-height: 32px;
   width: 280px;
@@ -88,39 +88,39 @@
   align-items: center;
 }
 
-.twitter-chrome-extension-profile-container {
+.twitrep-profile-container {
   position: relative;
   width: 58px;
   height: 20px;
 }
 
-.twitter-chrome-extension-profile-img {
+.twitrep-profile-img {
   height: 18px;
   width: 18px;
   border-radius: 50%;
   border: 1px solid white;
 }
 
-.twitter-chrome-extension-profile-img:nth-child(1) {
+.twitrep-profile-img:nth-child(1) {
   position: absolute;
   left: 0px;
   z-index: 3;
 }
 
-.twitter-chrome-extension-profile-img:nth-child(2) {
+.twitrep-profile-img:nth-child(2) {
   position: absolute;
   left: 8px;
   z-index: 2;
 }
 
-.twitter-chrome-extension-profile-img:nth-child(3) {
+.twitrep-profile-img:nth-child(3) {
   position: absolute;
   left: 16px;
   z-index: 1;
 }
 
 /****** BADGE ******/
-.twitter-chrome-extension-badges {
+.twitrep-badges {
   font-family: inter;
   display: flex;
   flex-direction: row;
@@ -129,7 +129,7 @@
   padding-right: 16px;
 }
 
-.twitter-chrome-extension-badge {
+.twitrep-badge {
   border-radius: 18px;
   height: 22px;
   font-size: 0.8rem;
@@ -147,31 +147,31 @@
   padding-right: 6px;
 }
 
-.twitter-chrome-extension-badge:hover {
+.twitrep-badge:hover {
   background: #bbc3c7;
 }
 
-.twitter-chrome-extension-badges::-webkit-scrollbar { 
+.twitrep-badges::-webkit-scrollbar { 
   display: none;
 }
 
-.twitter-chrome-extension-badge .twitter-chrome-extension-profile-img {
+.twitrep-badge .twitrep-profile-img {
   border: 1px solid #D1D9DD;;
 }
 
-.twitter-chrome-extension-badge p {
+.twitrep-badge p {
   margin: 0px;
   margin-left: 2px;
 }
 
-.twitter-chrome-extension-badge .twitter-chrome-extension-profile-container {
+.twitrep-badge .twitrep-profile-container {
   width: 36px;
   margin-right: 0px;
 }
 
 
-/****** MODAL ******/
-#twitter-chrome-extension-popup-container {
+/****** POPUP ******/
+#twitrep-popup-container {
   position: fixed;
   font-family: inter, sans-serif;
   top: 0;
@@ -183,12 +183,12 @@
   visibility: hidden;
   opacity: 0;
 }
-#twitter-chrome-extension-popup-container:target {
+#twitrep-popup-container:target {
   visibility: visible;
   opacity: 1;
 }
 
-#twitter-chrome-extension-popup {
+#twitrep-popup {
   margin: 70px auto;
   padding: 20px;
   background: #fff;
@@ -199,28 +199,28 @@
   position: relative;
 }
 
-#twitter-chrome-extension-popup a {
+#twitrep-popup a {
   color: #479BE9
 }
 
 
-#twitter-chrome-extension-popup p {
+#twitrep-popup p {
   color: #566370;
   // transition: none;
 }
 
-#twitter-chrome-extension-popup a:hover {
+#twitrep-popup a:hover {
   color: #408CD2
 }
 
-#twitter-chrome-extension-popup h2 {
+#twitrep-popup h2 {
   margin-top: 0;
   color: #333;
   text-align: center;
   font-family: inter-bolder, sans-serif;
 }
 
-#twitter-chrome-extension-popup #twitter-chrome-extension-close {
+#twitrep-popup #twitrep-close {
   position: absolute;
   top: 12px;
   right: 12px;
@@ -239,12 +239,194 @@
 	outline: inherit;
 }
 
-#twitter-chrome-extension-popup #twitter-chrome-extension-close:hover {
+#twitrep-popup #twitrep-close:hover {
   background: #408CD2;
   color: rgb(245, 245, 245);
 }
 
-#twitter-chrome-extension-popup #twitter-chrome-extension-content {
+#twitrep-popup #twitrep-content {
   max-height: 30%;
   overflow: auto;
+}
+
+
+/****** ONBOARDIN ******/
+#twitrep-onboarding-container {
+  position: fixed;
+  font-family: inter, sans-serif;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  transition: opacity 500ms;
+  visibility: hidden;
+  opacity: 0;
+}
+
+#twitrep-onboarding-container:target {
+  visibility: visible;
+  opacity: 1;
+}
+
+#twitrep-onboarding {
+  margin: 70px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  transition: opacity 500ms;
+  width: 30%;
+  min-width: 220px;
+  position: relative;
+}
+
+#twitrep-onboarding a {
+  color: #479BE9
+}
+
+
+#twitrep-onboarding p {
+  color: #566370;
+  // transition: none;
+}
+
+#twitrep-onboarding a:hover {
+  color: #408CD2
+}
+
+#twitrep-onboarding h2 {
+  margin-top: 0;
+  color: #333;
+  text-align: center;
+  padding: 0 20px 0 20px;
+  font-family: inter-bolder, sans-serif;
+}
+
+#twitrep-onboarding #twitrep-onboarding-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  transition: opacity 200ms;
+  font-size: 24px;
+  line-height: 24px;
+  height: 24px;
+  width: 24px;
+  text-decoration: none;
+  color: white;
+  background: #479BE9;
+  border-radius: 50%;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	outline: inherit;
+}
+
+#twitrep-onboarding-next-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#twitrep-onboarding button{
+  font-size: 14px;
+  line-height: 32px;
+  height: 32px;
+	padding: 0 18px 0 18px;
+  text-align: center;
+  text-decoration: none;
+  color: white;
+  background: #479BE9;
+  border-radius: 6px;
+	border: none;
+	cursor: pointer;
+	outline: inherit;
+  font-weight: bolder;
+  margin-left: auto;
+}
+
+#twitrep-onboarding #twitrep-onboarding-back {
+  color: white;
+  margin: 0;
+  background: #D1D9DD;
+  color: #566370;
+}
+
+#twitrep-onboarding #twitrep-onboarding-close:hover {
+  background: #408CD2;
+  color: rgb(245, 245, 245);
+}
+
+#twitrep-onboarding #twitrep-onboarding-content {
+  max-height: 30%;
+  overflow: auto;
+}
+
+
+/****** LISTS ******/
+.twitrep-onboarding-checkbox-container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.twitrep-onboarding-checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.twitrep-onboarding-checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+
+/* On mouse-over, add a grey background color */
+.twitrep-onboarding-checkbox-container:hover input ~ .twitrep-onboarding-checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.twitrep-onboarding-checkbox-container input:checked ~ .twitrep-onboarding-checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.twitrep-onboarding-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.twitrep-onboarding-checkbox-container input:checked ~ .twitrep-onboarding-checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.twitrep-onboarding-checkbox-container .twitrep-onboarding-checkmark:after {
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
 }

@@ -110,6 +110,13 @@ async function signUp() {
           credentials: credentials,
           user: data.user,
         });
+
+        console.log("Sending onboarding message");
+
+        // Send a message to the content script for the onboarding.
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_ONBOARDING" });
+        });
       }
     );
   });

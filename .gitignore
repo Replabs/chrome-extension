@@ -12,5 +12,8 @@
 .env.local
 .idea
 
-#generated manifest
+# generated manifest
 public/manifest.json
+
+# Releases
+/releases

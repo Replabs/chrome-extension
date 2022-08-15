@@ -3,14 +3,14 @@ import { ManifestType } from "@src/manifest-type";
 
 const manifest: ManifestType = {
   manifest_version: 3,
-  name: packageJson.name,
+  name: "TwitRep – Reputation for Twitter",
   version: packageJson.version,
   description: packageJson.description,
   options_page: "src/pages/options/index.html",
   background: {
     service_worker: "src/pages/background/index.js",
   },
-  permissions: ["identity", "management", "storage"],
+  permissions: ["identity", "management", "storage", "tabs"],
   action: {
     default_popup: "src/pages/popup/index.html",
     default_icon: "icon-34.png",
@@ -20,7 +20,7 @@ const manifest: ManifestType = {
   },
   content_scripts: [
     {
-      matches: ["http://twitter.com/*", "https://twitter.com/*"],
+      matches: ["<all_urls>"],
       js: ["src/pages/content/index.js"],
       css: ["assets/css/contentStyle.chunk.css"],
     },

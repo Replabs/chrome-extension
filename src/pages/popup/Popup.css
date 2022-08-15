@@ -14,6 +14,18 @@
   justify-content: center;
 }
 
+.App p {
+  color: #566370;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0px;
+}
+
+.App h3 {
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -27,12 +39,13 @@ button {
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-.App-logo {
+.profile-picture {
   height: 62px;
   width: 62px;
   pointer-events: none;
