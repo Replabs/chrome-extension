@@ -16,7 +16,7 @@ async function getBaseUrl() {
 }
 
 /**
- * Sign up a new user.
+ * Sign up as a new user.
  */
 async function signUp() {
   //
@@ -46,77 +46,76 @@ async function signUp() {
   //
   // Start the Oauth flow
   //
-  return new Promise((res) => {
-    chrome.identity.launchWebAuthFlow(
-      {
-        interactive: true,
-        url: oauthUrl,
-      },
-      async (responseUrl) => {
-        //
-        // Get the twitter credentials.
-        //
-        const url = await getBaseUrl();
-        const body = {
-          code: new URLSearchParams(responseUrl).get("code"),
-          grant_type: "authorization_code",
-          client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ",
-          redirect_uri: chrome.identity.getRedirectURL("oauth2"),
-          code_verifier: "challenge",
-        };
+  chrome.identity.launchWebAuthFlow(
+    {
+      interactive: true,
+      url: oauthUrl,
+    },
+    async (responseUrl) => {
+      //
+      // Get the twitter credentials.
+      //
+      const url = await getBaseUrl();
+      const body = {
+        code: new URLSearchParams(responseUrl).get("code"),
+        grant_type: "authorization_code",
+        client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ",
+        redirect_uri: chrome.identity.getRedirectURL("oauth2"),
+        code_verifier: "challenge",
+      };
 
-        const response = await fetch(url + "proxy/oauth", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        });
+      const response = await fetch(url + "proxy/oauth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
 
-        if (!response.ok) {
-          console.error("Failed getting twitter credentials.");
-          return;
-        }
-
-        const credentials = await response.json();
-
-        credentials.access_token_expires_at =
-          Date.now() + credentials.expires_in * 1000; // Convert from seconds to milliseconds.
-
-        //
-        // Use the Twitter credentials to create a user on the server and log it in.
-        //
-        const signup = await fetch(url + "signup", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            access_token: credentials?.access_token,
-          },
-        });
-
-        if (!signup.ok) {
-          console.error("Failed to sign up.");
-          return;
-        }
-
-        const data = await signup.json();
-
-        await chrome.storage.local.set({
-          credentials: credentials,
-          user: data.user,
-          onboarding: {
-            lists: data.lists,
-            step: 1,
-          },
-        });
-
-        // Send a message to the content script for the onboarding.
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_ONBOARDING" });
-        });
+      if (!response.ok) {
+        console.error("Failed getting twitter credentials.");
+        return;
       }
-    );
-  });
+
+      const credentials = await response.json();
+
+      credentials.access_token_expires_at =
+        Date.now() + credentials.expires_in * 1000; // Convert from seconds to milliseconds.
+
+      //
+      // Use the Twitter credentials to create a user on the server and log it in.
+      //
+      const signup = await fetch(url + "signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          access_token: credentials?.access_token,
+        },
+      });
+
+      if (!signup.ok) {
+        console.error("Failed to sign up.");
+        return;
+      }
+
+      const data = await signup.json();
+
+      // Save the credentials, user and onboarding info.
+      await chrome.storage.local.set({
+        credentials: credentials,
+        user: data.user,
+        onboarding: {
+          lists: data.lists,
+          step: 0,
+        },
+      });
+
+      // Send a message to the content script for the onboarding.
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_ONBOARDING" });
+      });
+    }
+  );
 }
 
 /**
@@ -164,7 +163,11 @@ async function getResults() {
   //
   // If existing results exist that hasn't expired yet, return it.
   //
-  const data = await chrome.storage.local.get("results");
+  const data = await chrome.storage.local.get("onboarding");
+
+  if (!data.onboard) {
+    return;
+  }
 
   if (data?.results && data?.results?.expires_at > Date.now()) {
     return data.results;
@@ -197,14 +200,78 @@ async function getResults() {
   return body;
 }
 
-chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+/**
+ * Get the user's sync status.
+ */
+async function getSyncStatus() {
+  // Get an access token, using the refresh token if needed.
+  const credentials = await getCredentials();
+
+  const base = await getBaseUrl();
+
+  const response = await fetch(base + "sync_status", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      access_token: credentials.access_token,
+    },
+  });
+
+  if (!response.ok) {
+    console.error("Failed to get results.");
+    return;
+  }
+
+  const body = await response.json();
+
+  console.log(body);
+
+  await chrome.storage.local.set({
+    sync_status: body,
+  });
+
+  return body;
+}
+
+/**
+ * Post the selected reputation type and lists to the user's firebase profile.
+ * This will trigger the crawling process for that user.
+ */
+async function onboardingFinished(onboarding: {
+  type: string;
+  selectedLists: string[];
+}) {
+  // Get an access token, using the refresh token if needed.
+  const credentials = await getCredentials();
+
+  const base = await getBaseUrl();
+
+  const response = await fetch(base + "onboarding_finished", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      access_token: credentials.access_token,
+    },
+    body: JSON.stringify({
+      type: onboarding.type,
+      lists: onboarding.selectedLists,
+    }),
+  });
+
+  if (!response.ok) {
+    console.error("Failed to finish onboarding.");
+    return await chrome.storage.local.remove("onboarding");
+  }
+}
+
+chrome.runtime.onMessage.addListener((message) => {
   if (message.type == "SIGN_UP") {
-    signUp().then((data) => {
-      sendResponse(data);
-    });
+    signUp();
   } else if (message.type == "RESULTS") {
-    getResults().then((results) => {
-      sendResponse(results);
-    });
+    getResults();
+  } else if (message.type == "ONBOARDING_FINISHED") {
+    onboardingFinished(message.onboarding);
+  } else if (message.type == "SYNC_STATUS") {
+    getSyncStatus();
   }
 });

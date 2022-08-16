@@ -5,17 +5,17 @@
 const id = (str: string) => "twitrep-onboarding-" + str;
 
 function hideOnboarding(e?: Event) {
+  console.log("inside hide!!");
   e?.stopPropagation();
 
-  const popup = document.getElementById("twitrep-onboarding-container");
+  const popup = document.getElementById(id("container"));
 
   popup?.style.setProperty("opacity", "0");
   popup?.style.setProperty("visibility", "hidden");
 }
 
 function onInput(e: Event) {
-  console.log("on input!");
-  const next = document.getElementById("twitrep-onboarding-next");
+  const next = document.getElementById(id("next"));
 
   console.log((e.target as HTMLTextAreaElement).value);
 
@@ -30,6 +30,7 @@ function onInput(e: Event) {
  * Get the template HTML for the current step.
  */
 function getOnboardingHtml(step: number, lists = []) {
+  console.log(step);
   if (step == 0) {
     // The HTML for the modal.
     return `
@@ -116,7 +117,7 @@ async function showOnboarding() {
   // Create the HTML template.
   const template = document.createElement("template");
   template.innerHTML = getOnboardingHtml(
-    onboarding.number,
+    onboarding.step,
     onboarding.lists
   ).trim();
 
@@ -146,6 +147,7 @@ async function showOnboarding() {
 
   const onNext = async () => {
     const next = document.getElementById(id("next"));
+
     if (next.classList.contains("disabled")) {
       return;
     }
@@ -164,8 +166,15 @@ async function showOnboarding() {
       const input = document.getElementById(id("type"));
       onboarding.type = (input as HTMLInputElement)?.value;
       onboarding.done = true;
+
+      // Send a message to the background script to start crawling tweets for the user's lists.
+      chrome.runtime.sendMessage({
+        type: "ONBOARDING_FINISHED",
+        onboarding: onboarding,
+      });
     } else if (onboarding.step == 3) {
       hideOnboarding();
+      return;
     }
 
     // Go to the next onboarding step.
@@ -173,7 +182,7 @@ async function showOnboarding() {
 
     // Update the onboarding info.
     await chrome.storage.local.set({ onboarding: onboarding });
-
+    console.log("Noooo!");
     showOnboarding();
   };
 

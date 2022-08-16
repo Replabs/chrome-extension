@@ -1,8 +1,34 @@
+@import "@assets/style/theme.scss";
+
+@font-face {
+  font-family: "inter";
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/Inter-Regular.ttf');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "inter-semibold";
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/Inter-SemiBold.ttf');
+  font-weight: semi-bold;
+}
+
+@font-face {
+  font-family: "inter-bold";
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/Inter-Bold.ttf'); 
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "inter-bolder";
+  src: url('chrome-extension://__MSG_@@extension_id__/fonts/Inter-ExtraBold.ttf'); 
+  font-weight: bolder;
+}
+
 body {
   width: 200px;
-  height: 200px;
+  height: 230px;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: inter -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;

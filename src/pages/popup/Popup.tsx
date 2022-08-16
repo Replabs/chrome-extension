@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "@pages/popup/Popup.css";
+import SyncStatus from "./components/SyncStatus";
 
 const Popup = () => {
   const [user, setUser] = useState(null);
@@ -13,19 +14,14 @@ const Popup = () => {
   }, []);
 
   // Start the Oauth flow, creating a user in Firebase.
-  const signUp = async () => {
-    chrome.runtime.sendMessage(
-      {
-        type: "SIGN_UP",
-      },
-      () => {
-        // This will be called immediately, sendMessage is not asynchronous.
-      }
-    );
+  const signUp = () => {
+    chrome.runtime.sendMessage({
+      type: "SIGN_UP",
+    });
   };
 
   // Clear the local user information.
-  const logOut = async () => {
+  const logOut = () => {
     chrome.storage.local.clear();
     setUser(null);
   };
@@ -43,7 +39,7 @@ const Popup = () => {
         <div>
           <h3>{user.name}</h3>
           <p>@{user.username}</p>
-          <br></br>
+          <SyncStatus />
           <button onClick={() => logOut()}>Log Out</button>
         </div>
       ) : (
