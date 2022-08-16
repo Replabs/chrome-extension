@@ -104,14 +104,11 @@ async function signUp() {
         await chrome.storage.local.set({
           credentials: credentials,
           user: data.user,
+          onboarding: {
+            lists: data.lists,
+            step: 1,
+          },
         });
-
-        res({
-          credentials: credentials,
-          user: data.user,
-        });
-
-        console.log("Sending onboarding message");
 
         // Send a message to the content script for the onboarding.
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

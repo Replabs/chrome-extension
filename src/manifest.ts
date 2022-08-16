@@ -20,8 +20,8 @@ const manifest: ManifestType = {
   },
   content_scripts: [
     {
-      matches: ["<all_urls>"],
-      js: ["src/pages/content/index.js"],
+      matches: ["https://twitter.com/*"],
+      js: ["src/pages/content/index.js", "src/pages/onboarding/index.js"],
       css: ["assets/css/contentStyle.chunk.css"],
     },
   ],

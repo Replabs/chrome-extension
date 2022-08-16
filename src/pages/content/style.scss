@@ -327,7 +327,7 @@
   justify-content: space-between;
 }
 
-#twitrep-onboarding button{
+#twitrep-onboarding button {
   font-size: 14px;
   line-height: 32px;
   height: 32px;
@@ -342,6 +342,10 @@
 	outline: inherit;
   font-weight: bolder;
   margin-left: auto;
+}
+
+#twitrep-onboarding button.disabled {
+  opacity: 0.5
 }
 
 #twitrep-onboarding #twitrep-onboarding-back {
@@ -429,4 +433,37 @@
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
+}
+
+/******* TYPES *******/
+#twitrep-onboarding-type {
+  border: 0;
+  outline: 0;
+  width: 100%;
+  margin-bottom: 32px;
+  border-bottom: 2px solid #2196F3;
+}
+
+#twitrep-onboarding-type::placeholder {
+  opacity: 0.5;
+}
+
+/****** FINAL ******/
+#twitrep-onboarding.final {
+  text-align: center;
+}
+
+#twitrep-onboarding.final svg {
+  height: 72px;
+  width: 72px;
+  margin-bottom: 24px;
+}
+
+#twitrep-onboarding.final h2 {
+  margin-bottom: 0;
+}
+
+#twitrep-onboarding.final p {
+  margin-top: 8px;
+  margin-bottom: 24px;
 }
