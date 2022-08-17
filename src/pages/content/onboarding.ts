@@ -5,7 +5,6 @@
 const id = (str: string) => "twitrep-onboarding-" + str;
 
 function hideOnboarding(e?: Event) {
-  console.log("inside hide!!");
   e?.stopPropagation();
 
   const popup = document.getElementById(id("container"));
@@ -30,7 +29,6 @@ function onInput(e: Event) {
  * Get the template HTML for the current step.
  */
 function getOnboardingHtml(step: number, lists = []) {
-  console.log(step);
   if (step == 0) {
     // The HTML for the modal.
     return `
@@ -68,7 +66,7 @@ function getOnboardingHtml(step: number, lists = []) {
             ${labels}
           </div>
           <div id="${id("next-row")}">
-            <button id="${id("back")}">Back</button> 
+            <button id="${id("back")}">Back</button>
             <button id="${id("next")}">Next</button>
           </div>
         </div>
@@ -182,12 +180,16 @@ async function showOnboarding() {
 
     // Update the onboarding info.
     await chrome.storage.local.set({ onboarding: onboarding });
-    console.log("Noooo!");
+
+    console.log("aljnwdiauwd");
     showOnboarding();
   };
 
   const onBack = () => {
-    return "foo";
+    onboarding.step--;
+    chrome.storage.local.set({ onboarding: onboarding });
+    console.log("<wdlknaw");
+    showOnboarding();
   };
 
   // Navigate to the next step when clicking the next button.
@@ -200,10 +202,12 @@ async function showOnboarding() {
 }
 
 // Register the event listener.
-chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _, __) => {
+  console.log("RECEIVED MESSAGE", message);
   if (message.type == "SHOW_ONBOARDING") {
+    console.log("Show onboarding function called!");
     showOnboarding();
   }
-
-  sendResponse();
 });
+
+console.log("RUNNING ONBOARDING");

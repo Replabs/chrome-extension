@@ -153,6 +153,8 @@ async function getCredentials() {
     return newCredentials;
   }
 
+  console.log("Using existing credentials");
+
   return data.credentials;
 }
 
@@ -163,13 +165,17 @@ async function getResults() {
   //
   // If existing results exist that hasn't expired yet, return it.
   //
-  const data = await chrome.storage.local.get("onboarding");
+  console.log("in get results");
+  const data = await chrome.storage.local.get();
+  console.log(data);
 
-  if (!data.onboard) {
+  if (!data.onboarding) {
+    console.log("in get results, no onboard");
     return;
   }
 
   if (data?.results && data?.results?.expires_at > Date.now()) {
+    console.log(data.results);
     return data.results;
   }
 
@@ -273,5 +279,9 @@ chrome.runtime.onMessage.addListener((message) => {
     onboardingFinished(message.onboarding);
   } else if (message.type == "SYNC_STATUS") {
     getSyncStatus();
+  } else {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, message);
+    });
   }
 });

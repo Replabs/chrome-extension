@@ -24,7 +24,7 @@ export default defineConfig({
   publicDir,
   build: {
     outDir,
-    sourcemap: isDev,
+    sourcemap: isDev ? "inline" : false,
     rollupOptions: {
       input: {
         content: resolve(pagesDir, "content", "index.ts"),

@@ -4,6 +4,9 @@
 
 const prefix = "twitrep-";
 
+// Used to throttle the script.
+let isRunning = false;
+
 /**
  * Return the string with the first letter capitalized.
  */
@@ -91,6 +94,7 @@ async function addReputationCardsToProfile() {
  * Add reputation badges to tweets in the timeline.
  */
 async function addReputationBadgesToTimeline() {
+  console.log("Inside adding badges");
   //
   // Fetch the results from storage or API.
   //
@@ -116,6 +120,8 @@ async function addReputationBadgesToTimeline() {
     }
   }
 
+  console.log(badges);
+
   if (badges.length == 0) {
     return;
   }
@@ -124,9 +130,13 @@ async function addReputationBadgesToTimeline() {
   // Get all the tweets that should display a badge.
   //
 
+  console.log("Inside tweet headers");
+
   const tweetHeaders = [
     ...document.querySelectorAll('[data-testid="User-Names"]'),
   ];
+
+  console.log(tweetHeaders);
 
   for (const tweetHeader of tweetHeaders) {
     // Get the <a> tag from the tweet header.
@@ -135,6 +145,8 @@ async function addReputationBadgesToTimeline() {
     // The href property of the a tag for the user link is /:username.
     const username = a?.getAttribute("href")?.replace("/", "");
 
+    console.log(username);
+
     // The badges that should be displayed for the user.
     const badgesToDisplay = badges.filter((b) => b.user.username == username);
 
@@ -142,15 +154,22 @@ async function addReputationBadgesToTimeline() {
       continue;
     }
 
+    console.log("container!");
+
     // Append the badges view to the tweet header.
     const container =
       tweetHeader.parentNode?.parentNode?.parentNode?.parentNode;
+
+    console.log(container);
 
     const containerHasBadges =
       [...container.children].filter((c) => c.className == prefix + "badges")
         .length > 0;
 
     if (!containerHasBadges) {
+      console.log("creating badges view");
+      console.log(badgesToDisplay);
+      const f = createBadgesView(badgesToDisplay);
       container.appendChild(createBadgesView(badgesToDisplay));
     }
   }
@@ -167,6 +186,7 @@ function createBadgesView(
     otherUsers: [{ profile_image_url: string }];
   }[]
 ) {
+  console.log("inside create badges view");
   const view = document.createElement("div");
   view.className = prefix + "badges";
 
@@ -256,17 +276,8 @@ function createCardsView(
   return view;
 }
 
-function showPopup(e: Event) {
-  e.stopPropagation();
-
-  const popup = document.getElementById(prefix + "popup-container");
-
-  popup?.style.setProperty("opacity", "1");
-  popup?.style.setProperty("visibility", "visible");
-}
-
 function hidePopup(e: Event) {
-  e.stopPropagation();
+  e?.stopPropagation();
 
   const popup = document.getElementById(prefix + "popup-container");
 
@@ -274,15 +285,8 @@ function hidePopup(e: Event) {
   popup?.style.setProperty("visibility", "hidden");
 }
 
-function injectPopup() {
-  //
-  // Only inject the modal if it doesn't already exist.
-  //
+function showPopup() {
   const modal = document.getElementById(prefix + "popup");
-
-  if (modal) {
-    return;
-  }
 
   // The HTML for the modal.
   const html = `
@@ -299,15 +303,16 @@ function injectPopup() {
 
   // Create the HTML template.
   const template = document.createElement("template");
-
-  // Find the body node.
-  const body = [...document.getElementsByTagName("body")][0];
-
-  // Add the modal HTML to the template.
   template.innerHTML = html;
 
-  // Add the html modal to the body.
-  body.appendChild(template.content.firstChild);
+  if (modal) {
+    // Replace the modal content.
+    modal.replaceWith(template.content.firstChild);
+  } else {
+    // Attach the template to the body.
+    const body = [...document.getElementsByTagName("body")][0];
+    body.appendChild(template.content.firstChild);
+  }
 
   // Add the option to close the modal.
   const close = document.getElementById(prefix + "close");
@@ -317,13 +322,14 @@ function injectPopup() {
 /**
  * Listen for changes in the DOM if needed.
  */
-async function addLocationObserver(callback: () => void) {
+async function addLocationObserver(callback) {
   //
   // Verify that the user is logged in.
   //
   const data = await chrome.storage.local.get("credentials");
 
   if (!data.credentials) {
+    console.log("no credentials!");
     return;
   }
 
@@ -333,20 +339,22 @@ async function addLocationObserver(callback: () => void) {
   //
   const onboarding = await chrome.storage.local.get("onboarding");
 
+  console.log(onboarding);
+
   if (!onboarding?.onboarding?.done) {
+    console.log("sending onboarding message");
     // Send a message to the onboarding content script.
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_ONBOARDING" });
-    });
+    chrome.runtime.sendMessage({ type: "SHOW_ONBOARDING" });
 
     return;
   }
 
   // Options for the observer (which mutations to observe)
   const config = {
-    attributes: false,
+    attributes: true,
     childList: true,
     subtree: true,
+    characterData: true,
   };
 
   // Create an observer instance linked to the callback function
@@ -354,12 +362,22 @@ async function addLocationObserver(callback: () => void) {
 
   // Start observing the target node for configured mutations
   observer.observe(document.body, config);
+
+  // Call the callback.
+  callback();
 }
 
 /**
  * The callback called when the DOM changes.
  */
 async function observerCallback() {
+  // if (isRunning) {
+  //   return;
+  // }
+  console.log("inside callback");
+
+  isRunning = true;
+
   const twitter = "https://twitter.com/";
   const href = window.location.href;
 
@@ -374,18 +392,15 @@ async function observerCallback() {
     !isTimeline;
 
   if (isTimeline) {
-    addReputationBadgesToTimeline();
+    await addReputationBadgesToTimeline();
   }
 
   if (isProfile) {
-    addReputationCardsToProfile();
+    await addReputationCardsToProfile();
   }
+
+  isRunning = false;
 }
 
 // Register the observers.
-addLocationObserver(observerCallback).then(() => {
-  observerCallback();
-});
-
-// Inject the popup.
-injectPopup();
+addLocationObserver(observerCallback);
