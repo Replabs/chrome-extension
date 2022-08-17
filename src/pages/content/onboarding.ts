@@ -13,12 +13,12 @@ function hideOnboarding(e?: Event) {
   popup?.style.setProperty("visibility", "hidden");
 }
 
-function onInput(e: Event) {
+function onInput(e?: Event) {
   const next = document.getElementById(id("next"));
 
-  console.log((e.target as HTMLTextAreaElement).value);
+  console.log((e?.target as HTMLTextAreaElement).value);
 
-  if ((e.target as HTMLTextAreaElement).value) {
+  if (e && (e?.target as HTMLTextAreaElement).value) {
     next.classList.remove("disabled");
   } else {
     next.classList.add("disabled");

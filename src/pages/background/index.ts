@@ -79,9 +79,6 @@ async function signUp() {
 
       const credentials = await response.json();
 
-      credentials.access_token_expires_at =
-        Date.now() + credentials.expires_in * 1000; // Convert from seconds to milliseconds.
-
       //
       // Use the Twitter credentials to create a user on the server and log it in.
       //
@@ -90,6 +87,7 @@ async function signUp() {
         headers: {
           "Content-Type": "application/json",
           access_token: credentials?.access_token,
+          user_id: credentials?.user_id,
         },
       });
 
@@ -102,7 +100,10 @@ async function signUp() {
 
       // Save the credentials, user and onboarding info.
       await chrome.storage.local.set({
-        credentials: credentials,
+        credentials: {
+          ...credentials,
+          user_id: data.user.id,
+        },
         user: data.user,
         onboarding: {
           lists: data.lists,
@@ -119,42 +120,10 @@ async function signUp() {
 }
 
 /**
- * Verify that the user has a valid access token. Refresh the token if not.
+ * Get the saved credentials.
  */
 async function getCredentials() {
   const data = await chrome.storage.local.get("credentials");
-
-  if (data?.credentials?.access_token_expires_at < Date.now()) {
-    const body = {
-      client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ",
-      refresh_token: data.credentials.refresh_token,
-      grant_type: "refresh_token",
-    };
-
-    const url = await getBaseUrl();
-
-    const response = await fetch(url + "proxy/oauth", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      console.error("Faield to get credentials.");
-      return;
-    }
-
-    const newCredentials = await response.json();
-
-    await chrome.storage.local.set({ credentials: newCredentials });
-
-    return newCredentials;
-  }
-
-  console.log("Using existing credentials");
-
   return data.credentials;
 }
 
@@ -175,25 +144,42 @@ async function getResults() {
   }
 
   if (data?.results && data?.results?.expires_at > Date.now()) {
-    console.log(data.results);
     return data.results;
   }
 
-  // Get an access token, using the refresh token if needed.
   const credentials = await getCredentials();
 
   const base = await getBaseUrl();
 
-  const response = await fetch(base + "results", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      access_token: credentials.access_token,
-    },
-  });
+  let response;
+
+  try {
+    response = await fetch(base + "results", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        access_token: credentials.access_token,
+        user_id: credentials.user_id,
+      },
+    });
+  } catch (e) {
+    console.error("Failed to get results.");
+    await chrome.storage.local.set({
+      results: {
+        expires_at: Date.now() + 10_000, // If the request fails, try again in 10 seconds.
+      },
+    });
+
+    return;
+  }
 
   if (!response.ok) {
-    console.error("Failed to get results.");
+    console.error("Failed to get results, invalid request.");
+    await chrome.storage.local.set({
+      results: {
+        expires_at: Date.now() + 10_000, // If the request fails, try again in 10 seconds.
+      },
+    });
     return;
   }
 
@@ -202,15 +188,12 @@ async function getResults() {
   await chrome.storage.local.set({
     results: body,
   });
-
-  return body;
 }
 
 /**
  * Get the user's sync status.
  */
 async function getSyncStatus() {
-  // Get an access token, using the refresh token if needed.
   const credentials = await getCredentials();
 
   const base = await getBaseUrl();
@@ -220,6 +203,7 @@ async function getSyncStatus() {
     headers: {
       "Content-Type": "application/json",
       access_token: credentials.access_token,
+      user_id: credentials.user_id,
     },
   });
 
@@ -247,7 +231,6 @@ async function onboardingFinished(onboarding: {
   type: string;
   selectedLists: string[];
 }) {
-  // Get an access token, using the refresh token if needed.
   const credentials = await getCredentials();
 
   const base = await getBaseUrl();
@@ -257,6 +240,7 @@ async function onboardingFinished(onboarding: {
     headers: {
       "Content-Type": "application/json",
       access_token: credentials.access_token,
+      user_id: credentials.user_id,
     },
     body: JSON.stringify({
       type: onboarding.type,

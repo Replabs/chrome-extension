@@ -5,7 +5,7 @@
 const prefix = "twitrep-";
 
 // Used to throttle the script.
-let isRunning = false;
+const isRunning = false;
 
 /**
  * Return the string with the first letter capitalized.
@@ -369,10 +369,9 @@ async function addLocationObserver(callback) {
 
   // Options for the observer (which mutations to observe)
   const config = {
-    attributes: true,
+    attributes: false,
     childList: true,
     subtree: true,
-    characterData: true,
   };
 
   // Create an observer instance linked to the callback function
@@ -389,13 +388,6 @@ async function addLocationObserver(callback) {
  * The callback called when the DOM changes.
  */
 async function observerCallback() {
-  // if (isRunning) {
-  //   return;
-  // }
-  console.log("inside callback");
-
-  isRunning = true;
-
   const twitter = "https://twitter.com/";
   const href = window.location.href;
 
@@ -416,8 +408,6 @@ async function observerCallback() {
   if (isProfile) {
     await addReputationCardsToProfile();
   }
-
-  isRunning = false;
 }
 
 // Register the observers.
