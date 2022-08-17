@@ -21,7 +21,7 @@ const manifest: ManifestType = {
   content_scripts: [
     {
       matches: ["https://twitter.com/*"],
-      js: ["src/pages/content/index.js", "src/pages/onboarding/index.js"],
+      js: ["src/pages/content/index.js"],
       css: ["assets/css/contentStyle.chunk.css"],
     },
   ],

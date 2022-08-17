@@ -134,12 +134,9 @@ async function getResults() {
   //
   // If existing results exist that hasn't expired yet, return it.
   //
-  console.log("in get results");
   const data = await chrome.storage.local.get();
-  console.log(data);
 
   if (!data.onboarding) {
-    console.log("in get results, no onboard");
     return;
   }
 
@@ -164,22 +161,11 @@ async function getResults() {
     });
   } catch (e) {
     console.error("Failed to get results.");
-    await chrome.storage.local.set({
-      results: {
-        expires_at: Date.now() + 10_000, // If the request fails, try again in 10 seconds.
-      },
-    });
-
     return;
   }
 
   if (!response.ok) {
     console.error("Failed to get results, invalid request.");
-    await chrome.storage.local.set({
-      results: {
-        expires_at: Date.now() + 10_000, // If the request fails, try again in 10 seconds.
-      },
-    });
     return;
   }
 
@@ -213,8 +199,6 @@ async function getSyncStatus() {
   }
 
   const body = await response.json();
-
-  console.log(body);
 
   await chrome.storage.local.set({
     sync_status: body,
@@ -268,4 +252,6 @@ chrome.runtime.onMessage.addListener((message) => {
       chrome.tabs.sendMessage(tabs[0].id, message);
     });
   }
+
+  return true;
 });
