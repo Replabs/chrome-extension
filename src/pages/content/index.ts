@@ -94,13 +94,16 @@ async function addReputationCardsToProfile() {
  * Add reputation badges to tweets in the timeline.
  */
 async function addReputationBadgesToTimeline() {
-  console.log("Inside adding badges");
   //
   // Fetch the results from storage or API.
   //
   await chrome.runtime.sendMessage({ type: "RESULTS" });
   const data = await chrome.storage.local.get("results");
   const results = data.results;
+
+  if (!results?.lists) {
+    return;
+  }
 
   //
   // Get all relevant badges to display from the results.
@@ -276,7 +279,7 @@ function createCardsView(
   return view;
 }
 
-function hidePopup(e: Event) {
+function hidePopup(e?: Event) {
   e?.stopPropagation();
 
   const popup = document.getElementById(prefix + "popup-container");
@@ -285,8 +288,24 @@ function hidePopup(e: Event) {
   popup?.style.setProperty("visibility", "hidden");
 }
 
-function showPopup() {
+function showPopup(e?: Event) {
+  e?.stopPropagation();
+
+  const popup = document.getElementById(prefix + "popup-container");
+
+  popup?.style.setProperty("opacity", "1");
+  popup?.style.setProperty("visibility", "visible");
+}
+
+function injectPopup() {
+  //
+  // Only inject the modal if it doesn't already exist.
+  //
   const modal = document.getElementById(prefix + "popup");
+
+  if (modal) {
+    return;
+  }
 
   // The HTML for the modal.
   const html = `
@@ -303,16 +322,15 @@ function showPopup() {
 
   // Create the HTML template.
   const template = document.createElement("template");
+
+  // Find the body node.
+  const body = [...document.getElementsByTagName("body")][0];
+
+  // Add the modal HTML to the template.
   template.innerHTML = html;
 
-  if (modal) {
-    // Replace the modal content.
-    modal.replaceWith(template.content.firstChild);
-  } else {
-    // Attach the template to the body.
-    const body = [...document.getElementsByTagName("body")][0];
-    body.appendChild(template.content.firstChild);
-  }
+  // Add the html modal to the body.
+  body.appendChild(template.content.firstChild);
 
   // Add the option to close the modal.
   const close = document.getElementById(prefix + "close");
@@ -404,3 +422,6 @@ async function observerCallback() {
 
 // Register the observers.
 addLocationObserver(observerCallback);
+
+// Inject the popup.
+injectPopup();
