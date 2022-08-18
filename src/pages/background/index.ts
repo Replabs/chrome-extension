@@ -112,8 +112,10 @@ async function signUp() {
       });
 
       // Send a message to the content script for the onboarding.
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_ONBOARDING" });
+      chrome.windows.getCurrent((window) => {
+        chrome.tabs.query({ active: true, windowId: window.id }, (tabs) => {
+          chrome.tabs.sendMessage(tabs[0].id, { type: "SHOW_ONBOARDING" });
+        });
       });
     }
   );
@@ -148,7 +150,7 @@ async function getResults() {
 
   const base = await getBaseUrl();
 
-  let response;
+  let response: Response;
 
   try {
     response = await fetch(base + "results", {
