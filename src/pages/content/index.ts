@@ -169,7 +169,7 @@ async function addReputationBadgesToTimeline() {
 function createBadgesView(
   badges: {
     keyword: string;
-    user: { name: string };
+    user: { name: string; top_tweets: string[] };
     list: string;
     otherUsers: [{ profile_image_url: string }];
   }[]
@@ -184,7 +184,11 @@ function createBadgesView(
 
     // Add the profiles.
     badgeContainer.appendChild(createProfilesView(badge.otherUsers));
-    badgeContainer.addEventListener("click", showPopup, false);
+    badgeContainer.addEventListener(
+      "click",
+      (e: Event) => showPopup(e, badge.keyword, badge.user),
+      false
+    );
 
     // Add the badge text.
     const name = document.createElement("p");
@@ -224,7 +228,7 @@ function createProfilesView(users: [{ profile_image_url: string }]) {
 function createCardsView(
   cards: {
     keyword: string;
-    user: { name: string };
+    user: { name: string; top_tweets: string[] };
     list: string;
     otherUsers: [{ profile_image_url: string }];
   }[]
@@ -238,7 +242,11 @@ function createCardsView(
     // The container of the card content.
     const cardContainer = document.createElement("div");
     cardContainer.className = prefix + "card";
-    cardContainer.addEventListener("click", showPopup, false);
+    cardContainer.addEventListener(
+      "click",
+      (e: Event) => showPopup(e, card.keyword, card.user),
+      false
+    );
     view.appendChild(cardContainer);
 
     // The title of the card.
@@ -268,14 +276,39 @@ function hidePopup(e?: Event) {
 
   const popup = document.getElementById(prefix + "popup-container");
 
+  // Remove any links added to the popup.
+  document.getElementById(prefix + "links")?.remove();
+
   popup?.style.setProperty("opacity", "0");
   popup?.style.setProperty("visibility", "hidden");
 }
 
-function showPopup(e?: Event) {
+function showPopup(e?: Event, type?: string, user?: { top_tweets: string[] }) {
   e?.stopPropagation();
 
   const popup = document.getElementById(prefix + "popup-container");
+
+  // Add links to the popup.
+  if (user?.top_tweets) {
+    const div = document.createElement("div");
+    div.id = prefix + "links";
+
+    const p = document.createElement("p");
+    p.textContent = `Some of the tweets indicating trustworthiness${
+      type ? " in " + type : ""
+    } are:`;
+    div.appendChild(p);
+
+    for (const tweet of user.top_tweets) {
+      const a = document.createElement("a");
+      a.href = tweet;
+      a.text = tweet;
+      a.className = `${prefix}-link truncate`;
+      div.appendChild(a);
+    }
+
+    document.getElementById(prefix + "content")?.appendChild(div);
+  }
 
   popup?.style.setProperty("opacity", "1");
   popup?.style.setProperty("visibility", "visible");
@@ -344,12 +377,14 @@ async function addLocationObserver(callback) {
   //
   // Verify valid results exist.
   //
+  chrome.runtime.sendMessage({ type: "RESULTS" });
+
   const results = await chrome.storage.local.get("results");
 
   if (!results?.results) {
-    chrome.runtime.sendMessage({ type: "RESULTS" });
     return;
   }
+  // }
 
   // Options for the observer (which mutations to observe)
   const config = {
@@ -446,6 +481,7 @@ function onInput(e?: Event) {
  * Get the template HTML for the current step.
  */
 function getOnboardingHtml(step: number, lists = []) {
+  console.log(step);
   if (step == 0) {
     // The HTML for the modal.
     return `
@@ -529,6 +565,10 @@ async function showOnboarding() {
   const data = await chrome.storage.local.get("onboarding");
   const onboarding = data.onboarding;
 
+  if (!onboarding) {
+    return;
+  }
+
   const modal = document.getElementById(id("container"));
 
   // Create the HTML template.
@@ -602,9 +642,9 @@ async function showOnboarding() {
     showOnboarding();
   };
 
-  const onBack = () => {
+  const onBack = async () => {
     onboarding.step--;
-    chrome.storage.local.set({ onboarding: onboarding });
+    await chrome.storage.local.set({ onboarding: onboarding });
     showOnboarding();
   };
 
