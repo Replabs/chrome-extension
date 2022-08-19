@@ -377,14 +377,13 @@ async function addLocationObserver(callback) {
   //
   // Verify valid results exist.
   //
-  chrome.runtime.sendMessage({ type: "RESULTS" });
+  await chrome.runtime.sendMessage({ type: "RESULTS" });
 
   const results = await chrome.storage.local.get("results");
 
   if (!results?.results) {
     return;
   }
-  // }
 
   // Options for the observer (which mutations to observe)
   const config = {

@@ -1,6 +1,6 @@
 {
   "name": "twitrep",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "A reputation plugin for Twitter.",
   "scripts": {
     "build": "tsc --noEmit && vite build",

@@ -1,19 +1,6 @@
 import "regenerator-runtime/runtime.js";
 
-/**
- * Return the base URL for the backend server.
- */
-async function getBaseUrl() {
-  return new Promise((res) => {
-    chrome.management.get(chrome.runtime.id, function (extensionInfo) {
-      if (extensionInfo.installType === "production") {
-        res("https://foo.com/"); // TODO
-      }
-
-      res("http://127.0.0.1:5000/");
-    });
-  });
-}
+const baseUrl = "https://backend-bo3523uimq-uc.a.run.app/"; // https://backend-bo3523uimq-uc.a.run.app/ for testing.
 
 /**
  * Sign up as a new user.
@@ -55,7 +42,6 @@ async function signUp() {
       //
       // Get the twitter credentials.
       //
-      const url = await getBaseUrl();
       const body = {
         code: new URLSearchParams(responseUrl).get("code"),
         grant_type: "authorization_code",
@@ -64,7 +50,7 @@ async function signUp() {
         code_verifier: "challenge",
       };
 
-      const response = await fetch(url + "proxy/oauth", {
+      const response = await fetch(baseUrl + "proxy/oauth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +68,7 @@ async function signUp() {
       //
       // Use the Twitter credentials to create a user on the server and log it in.
       //
-      const signup = await fetch(url + "signup", {
+      const signup = await fetch(baseUrl + "signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -148,12 +134,10 @@ async function getResults() {
 
   const credentials = await getCredentials();
 
-  const base = await getBaseUrl();
-
   let response: Response;
 
   try {
-    response = await fetch(base + "results", {
+    response = await fetch(baseUrl + "results", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -184,9 +168,7 @@ async function getResults() {
 async function getSyncStatus() {
   const credentials = await getCredentials();
 
-  const base = await getBaseUrl();
-
-  const response = await fetch(base + "sync_status", {
+  const response = await fetch(baseUrl + "sync_status", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -219,9 +201,7 @@ async function onboardingFinished(onboarding: {
 }) {
   const credentials = await getCredentials();
 
-  const base = await getBaseUrl();
-
-  const response = await fetch(base + "onboarding_finished", {
+  const response = await fetch(baseUrl + "onboarding_finished", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -240,11 +220,11 @@ async function onboardingFinished(onboarding: {
   }
 }
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
   if (message.type == "SIGN_UP") {
     signUp();
   } else if (message.type == "RESULTS") {
-    getResults();
+    getResults().then(() => sendResponse());
   } else if (message.type == "ONBOARDING_FINISHED") {
     onboardingFinished(message.onboarding);
   } else if (message.type == "SYNC_STATUS") {
