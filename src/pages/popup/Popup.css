@@ -13,6 +13,14 @@
   justify-content: center;
 }
 
+.App a {
+  color: #479BE9
+}
+
+.App a:hover {
+  color: #408CD2
+}
+
 .App p {
   color: #566370;
   font-size: 0.8rem;

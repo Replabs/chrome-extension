@@ -1,6 +1,7 @@
 import "regenerator-runtime/runtime.js";
 
-const baseUrl = "https://backend-bo3523uimq-uc.a.run.app/"; // https://backend-bo3523uimq-uc.a.run.app/ for testing.
+// const baseUrl = "http://localhost:5000/";
+const baseUrl = "https://backend-bo3523uimq-uc.a.run.app/";
 
 /**
  * Sign up as a new user.
@@ -228,7 +229,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
   } else if (message.type == "ONBOARDING_FINISHED") {
     onboardingFinished(message.onboarding);
   } else if (message.type == "SYNC_STATUS") {
-    getSyncStatus();
+    getSyncStatus().then(() => sendResponse());
   } else {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.tabs.sendMessage(tabs[0].id, message);
