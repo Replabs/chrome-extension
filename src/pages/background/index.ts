@@ -129,10 +129,6 @@ async function getResults() {
     return;
   }
 
-  if (data?.results && data?.results?.expires_at > Date.now()) {
-    return data.results;
-  }
-
   const credentials = await getCredentials();
 
   let response: Response;
