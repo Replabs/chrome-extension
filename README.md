@@ -11,9 +11,13 @@ To install: https://klingefjord.notion.site/TwitRep-a310e6cf916e4bf5b1cf8306dbc0
 
 ## Other repositories
 Backend: https://github.com/Replabs/twitter-backend
+
 Sentiment Model: https://github.com/Replabs/sentiment-model
+
 Embedding Model: https://github.com/Replabs/embedding-model
+
 Firebase Functions: https://github.com/Replabs/firebase
+
 
 ## Installation <a name="installation"></a>
 
