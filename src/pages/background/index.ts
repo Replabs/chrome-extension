@@ -221,6 +221,17 @@ async function onboardingFinished(onboarding: {
   }
 }
 
+/**
+ * Navigate the current tab to the specified url.
+ */
+async function navigateTo(url: string) {
+  chrome.windows.getCurrent((window) => {
+    chrome.tabs.query({ active: true, windowId: window.id }, (tabs) => {
+      chrome.tabs.update(tabs[0].id, { url: url });
+    });
+  });
+}
+
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
   if (message.type == "SIGN_UP") {
     signUp();
@@ -230,6 +241,8 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     onboardingFinished(message.onboarding);
   } else if (message.type == "SYNC_STATUS") {
     getSyncStatus().then(() => sendResponse());
+  } else if (message.type == "NAVIGATE") {
+    navigateTo(message.url).then(() => sendResponse());
   } else {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.tabs.sendMessage(tabs[0].id, message);

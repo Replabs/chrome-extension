@@ -498,6 +498,22 @@ function getOnboardingHtml(step: number, lists = []) {
        </div>
      </div>`;
   } else if (step == 1) {
+    if (lists.length == 0) {
+      return `
+       <div id="${id("container")}">
+        <div id="twitrep-onboarding">
+           <h2>You are not following any lists</h2>
+           <button id="${id("close")}">&times;</button>
+           <div id="${id("content")}">
+             You need to follow at least one list to use TwitRep. You can explore new lists by going to the "lists" tab or clicking the button below.
+           </div>
+           <div id="${id("next-row")}">
+             <button id="${id("discover-lists")}">Discover Lists</button>
+           </div>
+         </div>
+       </div>`;
+    }
+
     let labels = "";
 
     for (const list of lists) {
@@ -560,6 +576,84 @@ function getOnboardingHtml(step: number, lists = []) {
   }
 }
 
+const onNext = async (onboarding: {
+  step: number;
+  selectedLists: string[];
+  type: string;
+  done: boolean;
+}) => {
+  const next = document.getElementById(id("next"));
+
+  if (next.classList.contains("disabled")) {
+    return;
+  }
+
+  if (onboarding.step == 1) {
+    // Get the list IDs from the checked checkbox values.
+    const ids = Array.from(
+      document.querySelectorAll(`input[class='${id("checkbox")}']:checked`),
+      (e: HTMLInputElement) => e.value
+    );
+
+    // Update the onboarding info.
+    onboarding.selectedLists = ids;
+  } else if (onboarding.step == 2) {
+    // Set the reputation type to the input field's value.
+    const input = document.getElementById(id("type"));
+    onboarding.type = (input as HTMLInputElement)?.value;
+    onboarding.done = true;
+
+    // Send a message to the background script to start crawling tweets for the user's lists.
+    chrome.runtime.sendMessage({
+      type: "ONBOARDING_FINISHED",
+      onboarding: onboarding,
+    });
+  } else if (onboarding.step == 3) {
+    hideOnboarding();
+    return;
+  }
+
+  // Go to the next onboarding step.
+  onboarding.step++;
+
+  // Update the onboarding info.
+  await chrome.storage.local.set({ onboarding: onboarding });
+
+  showOnboarding();
+};
+
+const onBack = async (onboarding: {
+  step: number;
+  selectedLists: string[];
+  type: string;
+  done: boolean;
+}) => {
+  onboarding.step--;
+  await chrome.storage.local.set({ onboarding: onboarding });
+  showOnboarding();
+};
+
+const onDiscoverLists = async (e?: Event) => {
+  // Hide the onboarding popup.
+  hideOnboarding(e);
+
+  // The user in storage.
+  const data = await chrome.storage.local.get("user");
+
+  if (!data.user) {
+    return;
+  }
+
+  // Clear the user from storage.
+  await chrome.storage.local.clear();
+
+  // Prompt the user to discover and follow new lists.
+  await chrome.runtime.sendMessage({
+    type: "NAVIGATE",
+    url: `https://twitter.com/${data.user.username}/lists`,
+  });
+};
+
 async function showOnboarding() {
   const data = await chrome.storage.local.get("onboarding");
   const onboarding = data.onboarding;
@@ -600,60 +694,17 @@ async function showOnboarding() {
   const input = document.getElementById(id("type"));
   input?.addEventListener("input", onInput, false);
 
-  const onNext = async () => {
-    const next = document.getElementById(id("next"));
-
-    if (next.classList.contains("disabled")) {
-      return;
-    }
-
-    if (onboarding.step == 1) {
-      // Get the list IDs from the checked checkbox values.
-      const ids = Array.from(
-        document.querySelectorAll(`input[class='${id("checkbox")}']:checked`),
-        (e: HTMLInputElement) => e.value
-      );
-
-      // Update the onboarding info.
-      onboarding.selectedLists = ids;
-    } else if (onboarding.step == 2) {
-      // Set the reputation type to the input field's value.
-      const input = document.getElementById(id("type"));
-      onboarding.type = (input as HTMLInputElement)?.value;
-      onboarding.done = true;
-
-      // Send a message to the background script to start crawling tweets for the user's lists.
-      chrome.runtime.sendMessage({
-        type: "ONBOARDING_FINISHED",
-        onboarding: onboarding,
-      });
-    } else if (onboarding.step == 3) {
-      hideOnboarding();
-      return;
-    }
-
-    // Go to the next onboarding step.
-    onboarding.step++;
-
-    // Update the onboarding info.
-    await chrome.storage.local.set({ onboarding: onboarding });
-
-    showOnboarding();
-  };
-
-  const onBack = async () => {
-    onboarding.step--;
-    await chrome.storage.local.set({ onboarding: onboarding });
-    showOnboarding();
-  };
-
   // Navigate to the next step when clicking the next button.
   const next = document.getElementById(id("next"));
-  next?.addEventListener("click", onNext, false);
+  next?.addEventListener("click", () => onNext(onboarding), false);
 
   // Navigate back a step when clicking the back button.
   const back = document.getElementById(id("back"));
-  back?.addEventListener("click", onBack, false);
+  back?.addEventListener("click", () => onBack(onboarding), false);
+
+  // Log out the user when clicking the "Discover Lists" button.
+  const discoverLists = document.getElementById(id("discover-lists"));
+  discoverLists?.addEventListener("click", () => onDiscoverLists(), false);
 }
 
 // Register the event listener.
