@@ -10,7 +10,7 @@ const manifest: ManifestType = {
   background: {
     service_worker: "src/pages/background/index.js",
   },
-  permissions: ["identity", "management", "storage", "tabs"],
+  permissions: ["identity", "storage", "tabs"],
   action: {
     default_popup: "src/pages/popup/index.html",
     default_icon: "icon-34.png",
