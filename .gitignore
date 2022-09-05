@@ -4,6 +4,9 @@
 # testing
 /coverage
 
+# credentials
+/src/pages/background/credentials.ts
+
 # build
 /dist
 

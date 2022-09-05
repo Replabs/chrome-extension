@@ -1,4 +1,5 @@
 import "regenerator-runtime/runtime.js";
+import "../credentials";
 
 // const baseUrl = "http://localhost:5000/";
 const baseUrl = "https://backend-bo3523uimq-uc.a.run.app/";
@@ -20,7 +21,7 @@ async function signUp() {
   const params = {
     response_type: "code",
     redirect_uri: chrome.identity.getRedirectURL("oauth2"),
-    client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ", // TODO
+    client_id: CLIENT_ID,
     scope: "tweet.read users.read offline.access",
     state: "state",
     code_challenge: "challenge",
@@ -46,7 +47,7 @@ async function signUp() {
       const body = {
         code: new URLSearchParams(responseUrl).get("code"),
         grant_type: "authorization_code",
-        client_id: "cjJKbEd2Vl9DM2FIQ0stRUxCeTE6MTpjaQ",
+        client_id: CLIENT_ID,
         redirect_uri: chrome.identity.getRedirectURL("oauth2"),
         code_verifier: "challenge",
       };
