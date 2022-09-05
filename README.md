@@ -1,18 +1,27 @@
 <div align="center">
 <img src="public/icon-128.png" alt="logo"/>
-<h1> TwitRep Chrome Extension </h1>
+<h1>TwitRep Chrome Extension</h1>
+</div>
 
-![](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
-![](https://img.shields.io/badge/Typescript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![](https://badges.aleen42.com/src/vitejs.svg)
+# TwitRep
+
+A multi-dimensional reputation system for Twitter.
+
+To install: https://klingefjord.notion.site/TwitRep-a310e6cf916e4bf5b1cf8306dbc0a816
+
+## Other repositories
+Backend: https://github.com/Replabs/twitter-backend
+
+Sentiment Model: https://github.com/Replabs/sentiment-model
+
+Embedding Model: https://github.com/Replabs/embedding-model
+
+Firebase Functions: https://github.com/Replabs/firebase
 
 
-## To build
+## Installation <a name="installation"></a>
 
-`yarn build` / `yarn dev`
-
-## To release
-
-`yarn build`
-Package the dist contents.
-Upload zipped package to chrome dev console.
+1. `yarn dev` (`yarn build` for production)
+2. Go to `chrome://extensions`
+3. Load Unpacked
+4. Choose the `dist` directory.
