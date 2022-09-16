@@ -7,7 +7,7 @@
 
 A multi-dimensional reputation system for Twitter.
 
-To install: https://klingefjord.notion.site/TwitRep-a310e6cf916e4bf5b1cf8306dbc0a816
+To download: https://chrome.google.com/webstore/detail/twitrep-%E2%80%93-reputation-for/ogcbgbjkabebhaikpckkhdmkehghadln
 
 ## Other repositories
 Backend: https://github.com/Replabs/twitter-backend
